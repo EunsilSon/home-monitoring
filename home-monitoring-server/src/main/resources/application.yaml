@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: homemonitoring
+    name: home monitoring
 
   datasource:
     url: jdbc:postgresql://localhost:5432/home_monitoring
