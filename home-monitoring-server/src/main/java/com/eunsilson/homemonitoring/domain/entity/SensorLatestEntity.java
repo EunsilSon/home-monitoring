@@ -1,19 +1,24 @@
 package com.eunsilson.homemonitoring.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Getter
+@Entity
 @Table(name = "sensor_latest")
+@NoArgsConstructor
+@AllArgsConstructor
 public class SensorLatestEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID deviceId;
-    public Float temperature;
-    public Float humidity;
-    public Float heatIndex;
-    public Instant updatedAt;
+    private UUID deviceId;
+    private Float temperature;
+    private Float humidity;
+    private Float heatIndex;
+    private Instant recordedAt;
+    private Instant updatedAt;
 }
