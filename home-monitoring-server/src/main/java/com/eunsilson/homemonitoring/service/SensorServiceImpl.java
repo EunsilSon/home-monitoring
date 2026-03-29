@@ -19,6 +19,11 @@ import java.util.UUID;
 public class SensorServiceImpl implements SensorService {
     private static final UUID DEVICE_ID = UUID.fromString("220aa852-ee70-4105-8cf5-98c23cb5e631");
     private final SensorDataRepository sensorDataRepository;
+    private final SensorLatestRepository sensorLatestRepository;
+
+    public SensorLatestEntity getLatest() {
+        return sensorLatestRepository.findByDeviceId(DEVICE_ID);
+    }
 
     @Override
     @Transactional

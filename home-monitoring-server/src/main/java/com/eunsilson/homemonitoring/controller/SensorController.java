@@ -23,5 +23,8 @@ public class SensorController {
         return ResponseEntity.internalServerError().build();
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<SensorLatestEntity> getLatest() {
+        return ResponseEntity.ok().body(sensorService.getLatest());
     }
 }
