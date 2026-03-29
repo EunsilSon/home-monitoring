@@ -2,12 +2,12 @@ import serial
 import json
 import requests
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 SERIAL_PORT = "COM3"
 BAUD_RATE = 9600
 
-API_URL = "http://192.168.0.9:8000/api/sensor"
+API_URL = "http://192.168.0.13:8000/sensor/bulk"
 
 session = requests.Session()
 
@@ -27,10 +27,10 @@ while True:
         data = json.loads(line)
 
         payload = {
-            "temperature": data.get["temperature"],
-            "humidity": data.get["humidity"],
-            "heatIndex": data.get["heatIndex"],
-            "recordedAt": datetime.utcnow().isoformat() + "Z"
+            "temperature": data.get("temperature"),
+            "humidity": data.get("humidity"),
+            "heatIndex": data.get("heatIndex"),
+            "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         buffer.append(payload)
 
