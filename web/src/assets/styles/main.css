@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design Tokens ──────────────────────────────────────────── */
+:root {
+  --col-blush: #e9cbd1;
+  --col-sand:  #f1d7a5;
+  --col-azure: #368dd2;
+  --col-mist:  #c0d0e6;
+  --col-char:  #373737;
+  --col-ice:   #d3e1ee;
+  --col-teal:  #00a7c2;
+
+  --font-display: 'Playfair Display', serif;
+  --font-body:    'Noto Sans KR', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+/* ── Reset / Base ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #f4f0ed;
+  color: var(--col-char);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Vuetify 오버라이드 ─────────────────────────────────────── */
+.v-application {
+  background: transparent !important;
+  font-family: var(--font-body) !important;
+}
