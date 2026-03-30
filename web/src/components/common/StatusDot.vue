@@ -14,7 +14,6 @@ const labelMap: Record<PollingStatus, string> = {
   error:   '연결 오류',
 }
 
-const isLive = (s: PollingStatus) => s === 'success' || s === 'loading' || s === 'idle'
 </script>
 
 <template>

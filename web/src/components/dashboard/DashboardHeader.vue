@@ -27,7 +27,7 @@ defineProps<Props>()
 }
 
 .page-subtitle {
-  font-size: 13px;
+  font-size: 15px;
   color: #8e8e93;
   margin-top: 4px;
   font-weight: 400;

@@ -12,7 +12,10 @@ interface Props {
 const props = defineProps<Props>()
 
 const displayValue = computed(() => {
-  if (props.value === null) return '—'
+  const val = props.value;
+  if (val === null || val === undefined || isNaN(Number(val))) {
+    return '—';
+  }
   return props.value.toFixed(DECIMAL_PLACES)
 })
 </script>
