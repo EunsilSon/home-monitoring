@@ -4,9 +4,9 @@ import type { MetricConfig } from '@/types/sensor'
 import { DECIMAL_PLACES } from '@/constants/format'
 
 interface Props {
-  config:     MetricConfig
-  value:      number | null
-  isLoading:  boolean
+  config:    MetricConfig
+  value:     number | null
+  isLoading: boolean
 }
 
 const props = defineProps<Props>()
@@ -18,33 +18,24 @@ const displayValue = computed(() => {
 </script>
 
 <template>
-  <div
-      class="metric-card"
-      :class="props.config.cardClass"
-  >
-    <!-- decorative blob (CSS ::before 보조) -->
+  <div class="metric-card" :class="props.config.cardClass">
+    <!-- 배경 블롭 -->
     <div class="card-blob" />
 
-    <!-- icon -->
-    <div class="card-icon">
-      <v-icon :icon="props.config.icon" />
+    <!-- 왼쪽: 아이콘 + 라벨 -->
+    <div class="card-left">
+      <div class="card-icon">{{ props.config.emoji }}</div>
+      <div class="card-text">
+        <p class="card-label">{{ props.config.label }}</p>
+        <p class="card-sublabel">{{ props.config.sublabel }}</p>
+      </div>
     </div>
 
-    <!-- label -->
-    <p class="card-label">{{ props.config.label }}</p>
-
-    <!-- value -->
-    <div class="card-value-row">
-      <span
-          class="card-value"
-          :class="{ refreshing: props.isLoading }"
-      >
-        <template v-if="props.isLoading && props.value === null">
-          <span class="skeleton skeleton-value" />
-        </template>
-        <template v-else>
-          {{ displayValue }}
-        </template>
+    <!-- 오른쪽: 수치 -->
+    <div class="card-value-wrap">
+      <span class="card-value" :class="{ refreshing: props.isLoading }">
+        <span v-if="props.isLoading && props.value === null" class="skeleton" />
+        <template v-else>{{ displayValue }}</template>
       </span>
       <span v-if="props.value !== null" class="card-unit">{{ props.config.unit }}</span>
     </div>
@@ -53,106 +44,109 @@ const displayValue = computed(() => {
 
 <style scoped>
 .metric-card {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(12px);
   border-radius: 20px;
-  padding: clamp(1.2rem, 3vw, 1.8rem) clamp(1rem, 2.5vw, 1.5rem);
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  padding: 20px 22px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.18s ease;
 }
+.metric-card:active { transform: scale(0.985); }
 
-.metric-card:hover {
-  transform: translateY(-3px);
-}
+/* ── variants ── */
+.card-temp { background: linear-gradient(135deg, #e8f4ff 0%, #d6ecff 100%); border-color: rgba(0,122,255,0.12); }
+.card-humi { background: linear-gradient(135deg, #e0f7f0 0%, #cdf3e8 100%); border-color: rgba(0,199,140,0.12); }
+.card-heat { background: linear-gradient(135deg, #fff3e4 0%, #ffe8cc 100%); border-color: rgba(255,149,0,0.12); }
 
-/* ── card variants ── */
-.card-temp {
-  box-shadow: 0 8px 28px rgba(54, 141, 210, 0.14);
-}
-.card-temp .card-icon  { color: var(--col-azure); }
-.card-temp .card-value { color: var(--col-azure); }
-
-.card-humi {
-  box-shadow: 0 8px 28px rgba(0, 167, 194, 0.12);
-}
-.card-humi .card-icon  { color: var(--col-teal); }
-.card-humi .card-value { color: var(--col-teal); }
-
-.card-heat {
-  background: rgba(211, 225, 238, 0.55);
-  box-shadow: 0 8px 28px rgba(192, 208, 230, 0.35);
-}
-.card-heat .card-icon  { color: #4a7ea8; }
-.card-heat .card-value { color: #2d6090; }
-
-/* ── decorative blob ── */
+/* decorative blob */
 .card-blob {
   position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 110px;
-  height: 110px;
+  top: -20px; right: -20px;
+  width: 90px; height: 90px;
   border-radius: 50%;
-  opacity: 0.13;
+  opacity: 0.12;
   pointer-events: none;
 }
-.card-temp .card-blob { background: var(--col-azure); }
-.card-humi .card-blob { background: var(--col-teal); }
-.card-heat .card-blob { background: #7fa8c8; }
+.card-temp .card-blob { background: #007aff; }
+.card-humi .card-blob { background: #34c759; }
+.card-heat .card-blob { background: #ff9500; }
 
-/* ── inner elements ── */
-.card-icon {
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
-  margin-bottom: 0.5rem;
+/* ── left side ── */
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
+
+.card-icon {
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.card-temp .card-icon { background: rgba(0,122,255,0.12); }
+.card-humi .card-icon { background: rgba(52,199,89,0.12); }
+.card-heat .card-icon { background: rgba(255,149,0,0.12); }
 
 .card-label {
-  font-family: var(--font-body);
-  font-size: clamp(0.62rem, 1.2vw, 0.72rem);
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 0.3rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+.card-temp .card-label { color: #0056cc; }
+.card-humi .card-label { color: #007a5a; }
+.card-heat .card-label { color: #a05000; }
+
+.card-sublabel {
+  font-size: 11px;
+  color: #8e8e93;
 }
 
-.card-value-row {
+/* ── right side ── */
+.card-value-wrap {
   display: flex;
   align-items: baseline;
-  gap: 0.15em;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .card-value {
-  font-family: var(--font-mono);
-  font-size: clamp(2rem, 5.5vw, 3.2rem);
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 300;
   line-height: 1;
+  letter-spacing: -1px;
   transition: opacity 0.4s ease;
 }
+.card-value.refreshing { opacity: 0.35; }
 
-.card-value.refreshing {
-  opacity: 0.4;
-}
+.card-temp .card-value { color: #0a4a9c; }
+.card-humi .card-value { color: #006649; }
+.card-heat .card-value { color: #8a4200; }
 
 .card-unit {
-  font-family: var(--font-mono);
-  font-size: clamp(0.75rem, 1.6vw, 0.9rem);
-  color: #aaa;
+  font-size: 16px;
+  font-weight: 400;
 }
+.card-temp .card-unit { color: #0a4a9c; }
+.card-humi .card-unit { color: #006649; }
+.card-heat .card-unit { color: #8a4200; }
 
-/* ── skeleton ── */
-.skeleton-value {
+/* skeleton */
+.skeleton {
   display: inline-block;
-  width: 90px;
-  height: 2.8rem;
-  border-radius: 8px;
+  width: 70px; height: 32px;
+  border-radius: 6px;
   background: linear-gradient(90deg, #e8e8e8 25%, #f4f4f4 50%, #e8e8e8 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
-
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }

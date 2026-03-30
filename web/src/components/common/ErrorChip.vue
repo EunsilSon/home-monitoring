@@ -8,7 +8,7 @@ defineProps<Props>()
 
 <template>
   <div class="error-chip" role="alert">
-    <v-icon size="14" color="#c62828">mdi-alert-circle-outline</v-icon>
+    <span class="error-dot" />
     <span>{{ message }}</span>
   </div>
 </template>
@@ -17,13 +17,20 @@ defineProps<Props>()
 .error-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(229, 115, 115, 0.1);
-  color: #c62828;
-  border: 1px solid rgba(229, 115, 115, 0.28);
-  border-radius: 99px;
-  padding: 0.3rem 0.9rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.62rem, 1.1vw, 0.7rem);
+  gap: 6px;
+  background: rgba(255, 59, 48, 0.1);
+  color: #c0392b;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.error-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff3b30;
+  flex-shrink: 0;
 }
 </style>

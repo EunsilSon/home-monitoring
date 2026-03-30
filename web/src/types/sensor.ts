@@ -3,17 +3,18 @@ export interface SensorData {
   temperature: number
   humidity:    number
   heatIndex:   number
-  recordedAt:  string   // ISO 8601
-  updatedAt:   string   // ISO 8601
+  recordedAt:  string
+  updatedAt:   string
 }
 
 export type SensorKey = 'temperature' | 'humidity' | 'heatIndex'
 
 export interface MetricConfig {
   key:       SensorKey
-  label:     string
+  label:     string      // 영문 라벨 (카드 상단)
+  sublabel:  string      // 한글 라벨 (카드 하단)
   unit:      string
-  icon:      string
+  emoji:     string
   colorVar:  string
   cardClass: string
 }

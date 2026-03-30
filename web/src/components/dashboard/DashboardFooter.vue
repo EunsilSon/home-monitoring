@@ -9,11 +9,11 @@
 
 <style scoped>
 .dashboard-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  font-size: clamp(0.56rem, 1vw, 0.63rem);
-  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 30px 0 0;
+  font-size: 11px;
+  color: #b1b1b1;
+  letter-spacing: 0.05em;
 }
 </style>
+

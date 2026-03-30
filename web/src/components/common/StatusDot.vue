@@ -9,59 +9,66 @@ const props = defineProps<Props>()
 
 const labelMap: Record<PollingStatus, string> = {
   idle:    '대기 중',
-  loading: '갱신 중',
+  loading: '업데이트 중',
   success: '실시간 연결',
   error:   '연결 오류',
 }
+
+const isLive = (s: PollingStatus) => s === 'success' || s === 'loading' || s === 'idle'
 </script>
 
 <template>
-  <span class="status-dot-wrap">
-    <span
-        class="status-dot"
-        :class="`status-dot--${props.status}`"
-        :aria-label="labelMap[props.status]"
-    />
-    <span class="status-label">{{ labelMap[props.status] }}</span>
-  </span>
+  <div class="live-badge" :class="`live-badge--${props.status}`">
+    <span class="live-dot" :class="`live-dot--${props.status}`" />
+    <span>LIVE · {{ labelMap[props.status] }}</span>
+  </div>
 </template>
 
 <style scoped>
-.status-dot-wrap {
+.live-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.62rem, 1.1vw, 0.72rem);
-  color: #999;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
-.status-dot {
-  width: 7px;
-  height: 7px;
+.live-badge--idle,
+.live-badge--loading,
+.live-badge--success {
+  background: rgba(52, 199, 89, 0.12);
+  color: #1e7a34;
+}
+
+.live-badge--error {
+  background: rgba(255, 59, 48, 0.1);
+  color: #c0392b;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.status-dot--idle,
-.status-dot--loading {
-  background: var(--col-sand);
-  animation: pulse-dot 1.4s ease-in-out infinite;
+.live-dot--idle,
+.live-dot--loading,
+.live-dot--success {
+  background: #34c759;
+  animation: livepulse 1.8s ease-in-out infinite;
 }
 
-.status-dot--success {
-  background: var(--col-teal);
-  animation: pulse-dot 2.2s ease-in-out infinite;
-}
-
-.status-dot--error {
-  background: #e57373;
+.live-dot--error {
+  background: #ff3b30;
   animation: none;
 }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1;  transform: scale(1); }
-  50%       { opacity: 0.45; transform: scale(0.7); }
+@keyframes livepulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
 }
 </style>

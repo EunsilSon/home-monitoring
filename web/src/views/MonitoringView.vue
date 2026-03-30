@@ -4,6 +4,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import DashboardFooter from '@/components/dashboard/DashboardFooter.vue'
 import MetricGrid      from '@/components/dashboard/MetricGrid.vue'
 import UpdateInfo      from '@/components/dashboard/UpdateInfo.vue'
+import StatusDot       from '@/components/common/StatusDot.vue'
 import ErrorChip       from '@/components/common/ErrorChip.vue'
 import { useSensorPolling } from '@/composables/useSensorPolling'
 import { useDatetime }      from '@/composables/useDatetime'
@@ -28,81 +29,69 @@ const lastFetchedLabel = computed(() =>
 
 <template>
   <div class="monitoring-view">
+    <div class="scroll-area">
 
-    <main class="page-wrap">
+      <!-- Large title header -->
+      <DashboardHeader :today="today" />
 
-      <!-- 헤더 -->
-      <DashboardHeader
-          :today="today"
-          :status="status"
-      />
+      <!-- Live status badge -->
+      <StatusDot :status="status" class="mb-4" />
 
-      <!-- 에러 메시지 -->
+      <!-- Error -->
       <Transition name="fade">
-        <ErrorChip v-if="isError" :message="errorMsg" />
+        <ErrorChip v-if="isError" :message="errorMsg" class="mb-4" />
       </Transition>
 
-      <!-- 지표 카드 그리드 -->
+      <!-- 온도 hero + 습도/체감온도 small grid -->
       <MetricGrid
           :sensor-data="data"
           :is-loading="isLoading"
       />
 
-      <!-- 갱신 시각 + 카운트다운 바 -->
+      <!-- 장치 정보 + 다음 업데이트 -->
+      <div class="spacer" />
       <UpdateInfo
-          v-if="hasData || isLoading"
+          v-if="hasData || isLoading || isError"
           :last-fetched-label="lastFetchedLabel"
           :countdown-ratio="countdownRatio"
       />
 
-    </main>
-
-    <!-- 푸터 -->
-    <DashboardFooter />
+      <!-- Footer -->
+      <DashboardFooter />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .monitoring-view {
-  position: relative;
   min-height: 100vh;
+  background: #f2f2f7;
   display: flex;
   flex-direction: column;
 }
 
-/* 배경 그라디언트 레이어 */
-.bg-gradient {
-  position: fixed;
-  inset: 0;
-  background:
-      radial-gradient(ellipse 80% 60% at 15% 10%,  rgba(200, 210, 230, 0.45) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 85% 85%,  rgba(0, 167, 194, 0.12)   0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 70% 20%,  rgba(241, 215, 165, 0.4)  0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* 콘텐츠 영역 */
-.page-wrap {
-  position: relative;
-  z-index: 1;
+.scroll-area {
   flex: 1;
+  padding: 0 20px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(1.5rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2.5rem);
-  gap: clamp(1.2rem, 3vw, 2rem);
 }
 
-/* 에러칩 전환 애니메이션 */
+.spacer { height: 20px; }
+
+.mb-4 { margin-bottom: 16px; }
+
+/* Fade transition */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 </style>

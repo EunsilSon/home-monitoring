@@ -11,7 +11,7 @@ export function useSensorPolling() {
   const errorMsg    = ref<string>('')
   const lastFetched = ref<Date | null>(null)
 
-  /** 다음 갱신까지 남은 비율 (1 → 0) */
+  /** 다음 업데이트까지 남은 비율 (1 → 0) */
   const countdownRatio = ref<number>(1)
 
   let pollingTimer:   ReturnType<typeof setTimeout>   | null = null
