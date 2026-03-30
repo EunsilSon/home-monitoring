@@ -6,11 +6,6 @@ spring:
   application:
     name: home monitoring
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/home_monitoring
-    username: postgres
-    password: 1234
-
     jpa:
       hibernate:
         ddl-auto: update
