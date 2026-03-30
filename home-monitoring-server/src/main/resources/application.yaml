@@ -25,3 +25,6 @@ spring:
       org.springframework.web: WARN
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql: TRACE
+
+  profiles:
+    active: local
