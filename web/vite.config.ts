@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       // 개발 환경: Vite proxy로 CORS 우회
-      // /sensor/* 요청을 VITE_API_HOST 서버로 전달
+      // /api/* 요청을 VITE_API_HOST 서버로 전달
       proxy: {
-        '/sensor': {
+        '/api': {
           target: env.VITE_API_HOST,
           changeOrigin: true,
         },
