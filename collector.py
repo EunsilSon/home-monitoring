@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 SERIAL_PORT = "COM3"
 BAUD_RATE = 9600
 
-API_URL = "http://192.168.0.13:8000/sensor/bulk"
+API_URL = "http://192.168.0.13:8000/api/sensor/bulk"
 
 session = requests.Session()
 
