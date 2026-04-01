@@ -1,0 +1,30 @@
+server:
+  address: 0.0.0.0
+  port: 9000
+
+spring:
+  application:
+    name: home monitoring
+
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          jdbc:
+            batch_size: 30
+          order_inserts: true
+          format_sql: true
+
+  logging:
+    file:
+      name: logs/home-monitoring.log
+    level:
+      root: INFO
+      org.springframework.web: WARN
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql: TRACE
+
+  profiles:
+    active: local
