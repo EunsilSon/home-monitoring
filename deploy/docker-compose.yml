@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: home_postgres
+    environment:
+      POSTGRES_DB: home_monitoring
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    networks:
+      - home-monitoring
+    restart: always
+
+  java-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: home_java
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/home_monitoring // ip 대신 docker service 이름 작성
+      SPRING_DATASOURCE_USERNAME: 
+      SPRING_DATASOURCE_PASSWORD: 
+    ports:
+      - "9000:9000"
+    networks:
+      - home-monitoring
+    restart: always
+
+  vue-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: home_web
+    ports:
+      - "80:80"
+    networks:
+      - home-monitoring
+    restart: always
+
+volumes:
+  pgdata:
+
+networks:
+  home-monitoring:
+    external: true

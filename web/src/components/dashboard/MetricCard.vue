@@ -16,7 +16,7 @@ const displayValue = computed(() => {
   if (val === null || val === undefined || isNaN(Number(val))) {
     return '—';
   }
-  return props.value.toFixed(DECIMAL_PLACES)
+  return val.toFixed(DECIMAL_PLACES)
 })
 </script>
 
