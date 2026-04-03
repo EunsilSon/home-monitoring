@@ -44,7 +44,7 @@ export function useSensorPolling() {
 
     try {
       data.value        = await sensorService.fetchLatest()
-      lastFetched.value = new Date()
+      lastFetched.value = new Date(data.value.updatedAt) // 마지막 수집 데이터
       status.value      = 'success'
     } catch (err) {
       status.value  = 'error'
