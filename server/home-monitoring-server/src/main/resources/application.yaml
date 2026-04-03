@@ -27,4 +27,4 @@ spring:
       org.hibernate.type.descriptor.sql: TRACE
 
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:local}
