@@ -76,8 +76,28 @@ jobs:
       - name: Deploy backend with Docker Compose
         run: |
           ssh -i ~/.ssh/lightsail.pem \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
-            "docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring && \
-             cd '${{ secrets.DEPLOY_DIR }}' && \
-             docker compose up -d --build java-server && \
-             docker image prune -f"
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" <<'EOF'
+          set -euo pipefail
+
+          docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring
+
+          cd '${{ secrets.DEPLOY_DIR }}'
+          test -f .env || (echo "Missing ${PWD}/.env" && exit 1)
+
+          docker compose up -d postgres
+
+          for i in $(seq 1 30); do
+            STATUS="$(docker inspect -f '{{.State.Health.Status}}' home_postgres 2>/dev/null || true)"
+            if [ "$STATUS" = "healthy" ]; then
+              break
+            fi
+            echo "Waiting for postgres healthcheck... current status: ${STATUS:-unknown}"
+            sleep 2
+          done
+
+          STATUS="$(docker inspect -f '{{.State.Health.Status}}' home_postgres)"
+          test "$STATUS" = "healthy" || (echo "postgres is not healthy: $STATUS" && docker logs home_postgres && exit 1)
+
+          docker compose up -d --build java-server
+          docker image prune -f
+          EOF
