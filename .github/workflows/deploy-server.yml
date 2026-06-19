@@ -1,0 +1,73 @@
+name: Deploy Server
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/home-monitoring-server/**'
+      - 'deploy/java-server/**'
+      - 'deploy/docker-compose.yml'
+      - '.github/workflows/deploy-server.yml'
+
+concurrency:
+  group: home-monitoring-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-server:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Build backend
+        working-directory: server/home-monitoring-server
+        run: |
+          chmod +x gradlew
+          ./gradlew clean bootJar --no-daemon
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail.pem
+          chmod 600 ~/.ssh/lightsail.pem
+          ssh-keyscan -H "${{ secrets.LIGHTSAIL_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote server directory
+        run: |
+          ssh -i ~/.ssh/lightsail.pem \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+            "mkdir -p '${{ secrets.DEPLOY_DIR }}/java-server' && \
+             rm -f '${{ secrets.DEPLOY_DIR }}/java-server/'*.jar"
+
+      - name: Upload backend files
+        run: |
+          scp -i ~/.ssh/lightsail.pem deploy/docker-compose.yml \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/docker-compose.yml"
+
+          scp -i ~/.ssh/lightsail.pem deploy/java-server/Dockerfile \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/Dockerfile"
+
+          JAR_FILE="$(find server/home-monitoring-server/build/libs -name '*.jar' ! -name '*plain*' | head -n 1)"
+          scp -i ~/.ssh/lightsail.pem "$JAR_FILE" \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/app.jar"
+
+      - name: Deploy backend with Docker Compose
+        run: |
+          ssh -i ~/.ssh/lightsail.pem \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+            "docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring && \
+             cd '${{ secrets.DEPLOY_DIR }}' && \
+             docker compose up -d --build java-server && \
+             docker image prune -f"

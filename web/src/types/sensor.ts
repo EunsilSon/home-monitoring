@@ -7,6 +7,16 @@ export interface SensorData {
   updatedAt:   string
 }
 
+export type DeviceStatusValue = 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
+
+export interface DeviceStatus {
+  deviceId:                 string
+  status:                   DeviceStatusValue
+  lastSeenAt:               string | null
+  serverTime:               string
+  offlineThresholdSeconds:  number
+}
+
 export type SensorKey = 'temperature' | 'humidity' | 'heatIndex'
 
 export interface MetricConfig {

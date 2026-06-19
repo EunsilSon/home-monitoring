@@ -1,9 +1,11 @@
 package com.eunsilson.homemonitoring;
 
+import com.eunsilson.homemonitoring.domain.DeviceIds;
 import com.eunsilson.homemonitoring.domain.dto.SensorDataRequest;
 import com.eunsilson.homemonitoring.domain.entity.SensorLatestEntity;
 import com.eunsilson.homemonitoring.repository.SensorDataRepository;
 import com.eunsilson.homemonitoring.repository.SensorLatestRepository;
+import com.eunsilson.homemonitoring.service.DeviceService;
 import com.eunsilson.homemonitoring.service.SensorServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -27,6 +29,9 @@ public class SensorServiceImplTest {
 
     @Mock
     private SensorLatestRepository sensorLatestRepository;
+
+    @Mock
+    private DeviceService deviceService;
 
     @InjectMocks
     private SensorServiceImpl sensorService;
@@ -43,29 +48,31 @@ public class SensorServiceImplTest {
                 ))
                 .toList();
 
-        sensorService.saveSensorDataAndLatestUpdate(requests);
-
-        verify(sensorDataRepository).saveAll(anyList());
-
-        verify(sensorLatestRepository).upsert(
-                eq(UUID.fromString("220aa852-ee70-4105-8cf5-98c23cb5e631")),
+        when(sensorLatestRepository.upsert(
+                eq(DeviceIds.DEFAULT_DEVICE_ID),
                 eq(20.0f),
                 eq(30.0f),
                 eq(21.0f),
-                eq(Instant.parse("2026-03-29T10:29:00Z"))
-                eq(Instant.now())
-        );
+                eq(Instant.parse("2026-03-29T10:29:00Z")),
+                any(Instant.class)
+        )).thenReturn(1);
+
+        boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
+
+        assertTrue(result);
+        verify(sensorDataRepository).saveAll(anyList());
+        verify(deviceService).recordHeartbeat();
     }
 
     @Test
     void getLatest_shouldReturnLatestSensorData() {
 
         SensorLatestEntity expected = new SensorLatestEntity(
-                UUID.fromString("220aa852-ee70-4105-8cf5-98c23cb5e631"),
+                DeviceIds.DEFAULT_DEVICE_ID,
                 20.0f,
                 30.0f,
                 21.0f,
-                Instant.parse("2026-03-29T11:00:00Z")
+                Instant.parse("2026-03-29T11:00:00Z"),
                 Instant.now()
         );
 

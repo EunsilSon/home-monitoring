@@ -1,25 +1,35 @@
 <script setup lang="ts">
-import type { PollingStatus } from '@/composables/useSensorPolling'
+import type { ConnectionStatus } from '@/composables/useSensorPolling'
 
 interface Props {
-  status: PollingStatus
+  status: ConnectionStatus
 }
 
 const props = defineProps<Props>()
 
-const labelMap: Record<PollingStatus, string> = {
+const labelMap: Record<ConnectionStatus, string> = {
   idle:    '대기 중',
   loading: '업데이트 중',
   success: '실시간 연결',
   error:   '연결 오류',
+  offline: '센서 오프라인',
+  unknown: '상태 확인 중',
 }
 
+const prefixMap: Record<ConnectionStatus, string> = {
+  idle:    'CHECK',
+  loading: 'SYNC',
+  success: 'LIVE',
+  error:   'ERROR',
+  offline: 'OFFLINE',
+  unknown: 'CHECK',
+}
 </script>
 
 <template>
   <div class="live-badge" :class="`live-badge--${props.status}`">
     <span class="live-dot" :class="`live-dot--${props.status}`" />
-    <span>LIVE · {{ labelMap[props.status] }}</span>
+    <span>{{ prefixMap[props.status] }} · {{ labelMap[props.status] }}</span>
   </div>
 </template>
 
@@ -42,7 +52,13 @@ const labelMap: Record<PollingStatus, string> = {
   color: #1e7a34;
 }
 
-.live-badge--error {
+.live-badge--unknown {
+  background: rgba(142, 142, 147, 0.12);
+  color: #636366;
+}
+
+.live-badge--error,
+.live-badge--offline {
   background: rgba(255, 59, 48, 0.1);
   color: #c0392b;
 }
@@ -61,7 +77,13 @@ const labelMap: Record<PollingStatus, string> = {
   animation: livepulse 1.8s ease-in-out infinite;
 }
 
-.live-dot--error {
+.live-dot--unknown {
+  background: #8e8e93;
+  animation: none;
+}
+
+.live-dot--error,
+.live-dot--offline {
   background: #ff3b30;
   animation: none;
 }

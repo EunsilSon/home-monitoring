@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import type { ConnectionStatus } from '@/composables/useSensorPolling'
 import CountdownBar from '@/components/common/CountdownBar.vue'
 
 interface Props {
+  sensorStatus:     ConnectionStatus
+  sensorStatusLabel: string
   lastFetchedLabel: string
+  lastSeenLabel:    string
   countdownRatio:   number
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 </script>
 
 <template>
@@ -16,10 +20,26 @@ defineProps<Props>()
     <div class="info-card">
       <div class="info-row">
         <div class="info-row-left">
+          <div class="info-icon">📶</div>
+          <span class="info-key">현재 센서 상태</span>
+        </div>
+        <span class="status-chip" :class="`status-chip--${props.sensorStatus}`">
+          {{ props.sensorStatusLabel }}
+        </span>
+      </div>
+      <div class="info-row">
+        <div class="info-row-left">
           <div class="info-icon">📡</div>
           <span class="info-key">마지막 업데이트 시각</span>
         </div>
         <span class="info-val">{{ lastFetchedLabel }}</span>
+      </div>
+      <div class="info-row">
+        <div class="info-row-left">
+          <div class="info-icon">💓</div>
+          <span class="info-key">마지막 신호 시각</span>
+        </div>
+        <span class="info-val">{{ lastSeenLabel }}</span>
       </div>
     </div>
 
@@ -54,13 +74,19 @@ defineProps<Props>()
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 18px;
+}
+
+.info-row + .info-row {
+  border-top: 0.5px solid rgba(0, 0, 0, 0.06);
 }
 
 .info-row-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .info-icon {
@@ -79,11 +105,42 @@ defineProps<Props>()
   font-size: 15px;
   color: #1c1c1e;
   font-weight: 400;
+  white-space: nowrap;
 }
 
 .info-val {
   font-size: 13px;
   color: #8e8e93;
   font-weight: 400;
+  text-align: right;
+}
+
+.status-chip {
+  flex-shrink: 0;
+  min-width: 72px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-chip--idle,
+.status-chip--loading,
+.status-chip--unknown {
+  background: rgba(142, 142, 147, 0.12);
+  color: #636366;
+}
+
+.status-chip--success {
+  background: rgba(52, 199, 89, 0.14);
+  color: #1e7a34;
+}
+
+.status-chip--offline,
+.status-chip--error {
+  background: rgba(255, 59, 48, 0.12);
+  color: #c0392b;
 }
 </style>

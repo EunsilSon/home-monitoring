@@ -1,8 +1,8 @@
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-COPY homemonitoring-*.jar ./app.jar
+COPY app.jar ./app.jar
 
 ENV SPRING_PROFILES_ACTIVE=prod
 

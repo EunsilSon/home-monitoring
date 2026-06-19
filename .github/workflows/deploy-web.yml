@@ -1,0 +1,72 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+      - 'deploy/vue-web/**'
+      - 'deploy/docker-compose.yml'
+      - '.github/workflows/deploy-web.yml'
+
+concurrency:
+  group: home-monitoring-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build frontend
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail.pem
+          chmod 600 ~/.ssh/lightsail.pem
+          ssh-keyscan -H "${{ secrets.LIGHTSAIL_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote web directory
+        run: |
+          ssh -i ~/.ssh/lightsail.pem \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+            "mkdir -p '${{ secrets.DEPLOY_DIR }}/vue-web' && \
+             rm -rf '${{ secrets.DEPLOY_DIR }}/vue-web/dist'"
+
+      - name: Upload frontend files
+        run: |
+          scp -i ~/.ssh/lightsail.pem deploy/docker-compose.yml \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/docker-compose.yml"
+
+          scp -i ~/.ssh/lightsail.pem deploy/vue-web/Dockerfile deploy/vue-web/nginx.conf \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/vue-web/"
+
+          scp -i ~/.ssh/lightsail.pem -r web/dist \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/vue-web/dist"
+
+      - name: Deploy frontend with Docker Compose
+        run: |
+          ssh -i ~/.ssh/lightsail.pem \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+            "docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring && \
+             cd '${{ secrets.DEPLOY_DIR }}' && \
+             docker compose up -d --build --no-deps vue-web && \
+             docker image prune -f"

@@ -11,13 +11,15 @@ import { useDatetime }      from '@/composables/useDatetime'
 
 const {
   data,
-  status,
+  device,
+  connectionStatus,
   errorMsg,
   lastFetched,
   countdownRatio,
   isLoading,
   isError,
   hasData,
+  hasDevice,
 } = useSensorPolling()
 
 const { today, formatDatetime } = useDatetime()
@@ -25,6 +27,23 @@ const { today, formatDatetime } = useDatetime()
 const lastFetchedLabel = computed(() =>
     lastFetched.value ? formatDatetime(lastFetched.value) : '—'
 )
+
+const lastSeenLabel = computed(() =>
+    device.value?.lastSeenAt ? formatDatetime(new Date(device.value.lastSeenAt)) : '—'
+)
+
+const sensorStatusLabel = computed(() => {
+  const labelMap = {
+    idle:    '대기 중',
+    loading: '확인 중',
+    success: '정상 수신',
+    error:   '연결 오류',
+    offline: '오프라인',
+    unknown: '확인 중',
+  } as const
+
+  return labelMap[connectionStatus.value]
+})
 </script>
 
 <template>
@@ -35,7 +54,7 @@ const lastFetchedLabel = computed(() =>
       <DashboardHeader :today="today" />
 
       <!-- Live status badge -->
-      <StatusDot :status="status" class="mb-4" />
+      <StatusDot :status="connectionStatus" class="mb-4" />
 
       <!-- Error -->
       <Transition name="fade">
@@ -51,8 +70,11 @@ const lastFetchedLabel = computed(() =>
       <!-- 장치 정보 + 다음 업데이트 -->
       <div class="spacer" />
       <UpdateInfo
-          v-if="hasData || isLoading || isError"
+          v-if="hasData || hasDevice || isLoading || isError"
+          :sensor-status="connectionStatus"
+          :sensor-status-label="sensorStatusLabel"
           :last-fetched-label="lastFetchedLabel"
+          :last-seen-label="lastSeenLabel"
           :countdown-ratio="countdownRatio"
       />
 
