@@ -2,6 +2,11 @@
 dist/
 dist-ssr/
 
+# 로컬 환경변수
+.env
+.env.*
+!.env.example
+
 # 의존성
 node_modules/
 
