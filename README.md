@@ -239,4 +239,4 @@ Docker 기반 배포 구성이 있습니다.
 - `java-server`: Spring Boot API 서버
 - `vue-web`: Nginx로 서빙되는 Vue 정적 웹 앱
 
-`deploy/vue-web/nginx.conf`는 `/api/` 요청을 `http://java-server:9000`으로 프록시하도록 설정되어 있습니다. 즉, 브라우저는 같은 도메인으로 접근하고 Nginx가 백엔드 API 서버로 넘기는 구조입니다.
+`deploy/vue-web/nginx.conf`는 `/api/` 요청을 `http://java-server:80`으로 프록시하도록 설정되어 있습니다. 즉, 브라우저는 같은 도메인으로 접근하고 Nginx가 백엔드 API 서버로 넘기는 구조입니다.

@@ -25,12 +25,13 @@ services:
       dockerfile: Dockerfile
     container_name: home_java
     environment:
+      SERVER_PORT: 80
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    ports:
-      - "9000:9000"
+    expose:
+      - "80"
     depends_on:
       postgres:
         condition: service_healthy

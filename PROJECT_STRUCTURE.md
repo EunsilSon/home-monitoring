@@ -256,7 +256,7 @@ Docker 기반 배포 구성이 있습니다.
 - `java-server`: Spring Boot API 서버
 - `vue-web`: Nginx로 서빙되는 Vue 정적 웹 앱
 
-`deploy/vue-web/nginx.conf`는 `/api/` 요청을 `http://java-server:9000`으로 프록시하도록 설정되어 있습니다. 즉, 브라우저는 같은 도메인으로 접근하고 Nginx가 백엔드 API 서버로 넘기는 구조입니다.
+`deploy/vue-web/nginx.conf`는 `/api/` 요청을 `http://java-server:80`으로 프록시하도록 설정되어 있습니다. 즉, 브라우저는 같은 도메인으로 접근하고 Nginx가 백엔드 API 서버로 넘기는 구조입니다.
 
 ## 로컬 실행 예상 절차
 
@@ -287,7 +287,7 @@ python collector.py
 
 아래 항목들은 프로젝트 설명을 만들면서 눈에 띈 실행상 확인 포인트입니다.
 
-- `collector.py`의 API 주소는 `http://192.168.0.13:8000/api/sensor/bulk`인데, Spring Boot 서버 설정은 `9000` 포트입니다. 별도 프록시가 없다면 포트가 맞지 않을 수 있습니다.
+- `collector.py`의 기본 API 주소는 `http://192.168.0.13:8000`입니다. 운영 배포에서는 Nginx가 80번 포트에서 `/api/`를 Java 서버로 프록시하므로, 수집기 실행 환경에 맞게 `API_BASE_URL`을 설정해야 합니다.
 - `collector.py`의 시리얼 포트가 `COM3`로 고정되어 있어 macOS/Linux에서는 수정이 필요합니다.
 - `application.yaml`에서 `jpa` 설정이 `spring.application` 아래에 들어간 형태로 보입니다. 의도대로라면 `spring.jpa` 위치인지 확인해야 합니다.
 - `application.yaml`의 `logging` 설정도 현재 `spring.logging` 형태로 들어가 있어 일반적인 Spring Boot `logging` top-level 설정과 다릅니다.
