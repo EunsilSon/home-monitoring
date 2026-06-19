@@ -38,11 +38,21 @@ jobs:
           ./gradlew clean bootJar --no-daemon
 
       - name: Prepare SSH
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail.pem
+          set -euo pipefail
+
+          test -n "$LIGHTSAIL_HOST" || (echo "LIGHTSAIL_HOST secret is empty" && exit 1)
+          test -n "$LIGHTSAIL_SSH_KEY" || (echo "LIGHTSAIL_SSH_KEY secret is empty" && exit 1)
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$LIGHTSAIL_SSH_KEY" > ~/.ssh/lightsail.pem
           chmod 600 ~/.ssh/lightsail.pem
-          ssh-keyscan -H "${{ secrets.LIGHTSAIL_HOST }}" >> ~/.ssh/known_hosts
+
+          ssh-keygen -y -f ~/.ssh/lightsail.pem > /dev/null
+          ssh-keyscan -T 30 -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
 
       - name: Prepare remote server directory
         run: |
