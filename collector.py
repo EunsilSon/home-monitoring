@@ -54,10 +54,10 @@ def send_sensor_data():
     try:
         response = session.post(SENSOR_API_URL, json=buffer, timeout=5)
         print("response status: ", response.status_code)
-        buffer.clear()
     except Exception as e:
         print("API send failed: ", e)
     finally:
+        buffer.clear()
         last_sensor_sent_at = now
 
 
