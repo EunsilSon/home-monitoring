@@ -28,5 +28,5 @@ void loop() {
   Serial.print(heat);
   Serial.println("}");
 
-  delay(2000);
+  delay(10000);
 }
