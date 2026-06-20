@@ -2,48 +2,15 @@
 
 DHT22 온습도 센서 값을 수집해서 PostgreSQL에 저장하고, Vue 기반 웹 대시보드에서 최신 온도, 습도, 체감 온도를 확인하는 홈 IoT 모니터링 시스템입니다.
 
-## 전체 구성
+<br>
 
-```text
-home-monitoring/
-├── tem_hum_sensor.ino
-├── collector.py
-├── README.md
-├── web/
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tailwind.config.js
-│   └── src/
-│       ├── App.vue
-│       ├── main.ts
-│       ├── views/
-│       ├── components/
-│       ├── composables/
-│       ├── services/
-│       ├── constants/
-│       ├── plugins/
-│       ├── types/
-│       └── assets/
-├── server/
-│   └── home-monitoring-server/
-│       ├── build.gradle.kts
-│       ├── settings.gradle.kts
-│       ├── gradlew
-│       ├── src/main/java/com/eunsilson/homemonitoring/
-│       │   ├── HomemonitoringApplication.java
-│       │   ├── controller/
-│       │   ├── service/
-│       │   ├── repository/
-│       │   └── domain/
-│       ├── src/main/resources/
-│       └── src/test/java/
-└── deploy/
-    ├── docker-compose.yml
-    ├── java-server/
-    └── vue-web/
-```
+### 구축 과정
+홈 모니터링 시스템 구축 과정을 아래 블로그에서 확인할 수 있습니다.  
+- [Chapter 1. 아두이노부터 클라우드 배포까지 설계와 기획](https://velog.io/@eunsilson/%ED%99%88-IoT-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%95%84%EB%91%90%EC%9D%B4%EB%85%B8%EB%B6%80%ED%84%B0-%ED%81%B4%EB%9D%BC%EC%9A%B0%EB%93%9C-%EB%B0%B0%ED%8F%AC%EA%B9%8C%EC%A7%80-%EC%84%A4%EA%B3%84%EC%99%80-%EA%B8%B0%ED%9A%8D)
 
-## 데이터 흐름
+<br>
+
+### 데이터 흐름
 
 ```text
 DHT22 센서
@@ -66,93 +33,7 @@ Vue 웹 대시보드
 5. 서버는 원본 센서 이력을 `sensor_data`에 저장하고 최신값을 `sensor_latest`에 upsert합니다.
 6. Vue 웹 앱은 `/api/sensor/latest`를 30초 간격으로 조회해 대시보드를 갱신합니다.
 
-## 센서 및 수집기
-
-### `tem_hum_sensor.ino`
-
-Arduino용 DHT22 센서 코드입니다.
-
-- 센서 타입: `DHT22`
-- 핀: `DHTPIN 8`
-- 시리얼 속도: `9600`
-- 출력 값: `temperature`, `humidity`, `heatIndex`
-- 출력 형식: JSON
-- 측정 간격: 2초
-
-예상 출력 예시는 다음과 같습니다.
-
-```json
-{"temperature":24.10,"humidity":45.20,"heatIndex":24.00}
-```
-
-### `collector.py`
-
-Arduino 시리얼 출력을 읽어 서버로 전달하는 Python 수집기입니다.
-
-- 시리얼 포트: `COM3`
-- 시리얼 속도: `9600`
-- 버퍼 크기: 30개
-- 전송 대상: `/api/sensor/bulk`
-- `recordedAt`은 수집기가 UTC 현재 시각으로 생성합니다.
-
-## 백엔드 서버
-
-위치:
-
-```text
-server/home-monitoring-server/
-```
-
-Spring Boot 기반 API 서버입니다.
-
-주요 기술 스택:
-
-- Java 17
-- Spring Boot 3.5.13
-- Spring Web
-- Spring Data JPA
-- Spring Validation
-- PostgreSQL
-- Lombok
-- Gradle Kotlin DSL
-
-### 주요 패키지
-
-```text
-com.eunsilson.homemonitoring
-├── controller/
-├── service/
-├── repository/
-└── domain/
-    ├── dto/
-    └── entity/
-```
-
-### API
-
-`SensorController`는 `/api/sensor` 하위 API를 제공합니다.
-
-```text
-POST /api/sensor/bulk
-GET  /api/sensor/latest
-```
-
-`POST /api/sensor/bulk`는 여러 센서 데이터를 한 번에 저장합니다.
-
-요청 데이터 형태:
-
-```json
-[
-  {
-    "temperature": "24.1",
-    "humidity": "45.2",
-    "heatIndex": "24.0",
-    "recordedAt": "2026-06-09T00:00:00Z"
-  }
-]
-```
-
-`GET /api/sensor/latest`는 고정된 장치 UUID의 최신 센서 값을 반환합니다.
+<br>
 
 ### 데이터 모델
 
@@ -175,68 +56,3 @@ GET  /api/sensor/latest
 - 장치 메타데이터용 엔티티로 보입니다.
 - 현재 센서 저장 로직에서는 고정 UUID를 직접 사용하고 있어, 아직 적극적으로 연결되어 있지는 않습니다.
 
-## 프론트엔드 웹
-
-위치:
-
-```text
-web/
-```
-
-Vue 3 기반 모니터링 대시보드입니다.
-
-주요 기술 스택:
-
-- Vue 3
-- TypeScript
-- Vite
-- Vuetify
-- Tailwind CSS
-- Axios
-- Material Design Icons
-
-### 주요 구조
-
-```text
-web/src/
-├── App.vue
-├── main.ts
-├── views/
-│   └── MonitoringView.vue
-├── components/
-│   ├── common/
-│   └── dashboard/
-├── composables/
-│   ├── useSensorPolling.ts
-│   └── useDatetime.ts
-├── services/
-│   └── sensorService.ts
-├── constants/
-└── types/
-```
-
-### 화면 동작
-
-- `MonitoringView.vue`가 대시보드 화면의 중심입니다.
-- `useSensorPolling.ts`가 서버의 최신 데이터를 주기적으로 가져옵니다.
-- 폴링 주기는 `POLLING_INTERVAL_MS = 30_000`으로, 30초입니다.
-- `MetricGrid.vue`와 `MetricCard.vue`가 온도, 습도, 체감 온도를 카드 형태로 표시합니다.
-- API 기본 URL은 `VITE_API_BASE_URL` 환경 변수로 지정할 수 있고, 기본값은 빈 문자열입니다.
-
-## 배포 구성
-
-위치:
-
-```text
-deploy/
-```
-
-Docker 기반 배포 구성이 있습니다.
-
-구성 서비스:
-
-- `postgres`: PostgreSQL 15
-- `java-server`: Spring Boot API 서버
-- `vue-web`: Nginx로 서빙되는 Vue 정적 웹 앱
-
-`deploy/vue-web/nginx.conf`는 `/api/` 요청을 `http://java-server:80`으로 프록시하도록 설정되어 있습니다. 즉, 브라우저는 같은 도메인으로 접근하고 Nginx가 백엔드 API 서버로 넘기는 구조입니다.
