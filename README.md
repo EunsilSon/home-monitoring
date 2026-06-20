@@ -38,21 +38,11 @@ Vue 웹 대시보드
 ### 데이터 모델
 
 `SensorDataEntity`
-
-- 테이블: `sensor_data`
 - 목적: 센서 원본 이력 저장
-- 주요 필드: `deviceId`, `temperature`, `humidity`, `heatIndex`, `recordedAt`
 
 `SensorLatestEntity`
-
-- 테이블: `sensor_latest`
 - 목적: 장치별 최신 센서값 캐시
-- 주요 필드: `deviceId`, `temperature`, `humidity`, `heatIndex`, `recordedAt`, `updatedAt`
-- PostgreSQL `ON CONFLICT`를 사용해 최신값을 upsert합니다.
+- PostgreSQL `ON CONFLICT`를 사용해 최신값 upsert
 
 `DeviceEntity`
-
-- 테이블: `device`
-- 장치 메타데이터용 엔티티로 보입니다.
-- 현재 센서 저장 로직에서는 고정 UUID를 직접 사용하고 있어, 아직 적극적으로 연결되어 있지는 않습니다.
-
+- 목적: 장치 메타데이터
