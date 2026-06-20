@@ -13,7 +13,8 @@
   padding: 30px 0 0;
   font-size: 11px;
   color: #b1b1b1;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 </style>
-

@@ -51,6 +51,7 @@ const props = defineProps<Props>()
 <style scoped>
 .update-section {
   width: 100%;
+  min-width: 0;
 }
 
 .section-label {
@@ -58,7 +59,7 @@ const props = defineProps<Props>()
   font-weight: 600;
   color: #8e8e93;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0;
   margin-bottom: 8px;
 }
 
@@ -68,6 +69,7 @@ const props = defineProps<Props>()
   border-radius: 18px;
   border: 0.5px solid rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  width: 100%;
 }
 
 .info-row {
@@ -76,6 +78,7 @@ const props = defineProps<Props>()
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
+  min-width: 0;
 }
 
 .info-row + .info-row {
@@ -87,6 +90,7 @@ const props = defineProps<Props>()
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .info-icon {
@@ -105,7 +109,7 @@ const props = defineProps<Props>()
   font-size: 15px;
   color: #1c1c1e;
   font-weight: 400;
-  white-space: nowrap;
+  line-height: 1.35;
 }
 
 .info-val {
@@ -113,6 +117,9 @@ const props = defineProps<Props>()
   color: #8e8e93;
   font-weight: 400;
   text-align: right;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .status-chip {
@@ -142,5 +149,33 @@ const props = defineProps<Props>()
 .status-chip--error {
   background: rgba(255, 59, 48, 0.12);
   color: #c0392b;
+}
+
+@media (max-width: 430px) {
+  .info-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+
+  .info-val {
+    text-align: left;
+    padding-left: 40px;
+  }
+
+  .status-chip {
+    margin-left: 40px;
+  }
+}
+
+@media (max-width: 330px) {
+  .info-val {
+    padding-left: 0;
+  }
+
+  .status-chip {
+    margin-left: 0;
+  }
 }
 </style>

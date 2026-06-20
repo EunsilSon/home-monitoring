@@ -40,9 +40,12 @@ const prefixMap: Record<ConnectionStatus, string> = {
   gap: 5px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   padding: 4px 10px;
   border-radius: 20px;
+  line-height: 1.35;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .live-badge--idle,

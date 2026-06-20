@@ -15,15 +15,16 @@ defineProps<Props>()
 
 <style scoped>
 .page-header {
-  padding: 12px 0 20px;
+  padding: 8px 0 18px;
 }
 
 .page-title {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 700;
   color: #1c1c1e;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .page-subtitle {
@@ -31,5 +32,16 @@ defineProps<Props>()
   color: #8e8e93;
   margin-top: 4px;
   font-weight: 400;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .page-header {
+    padding: 0 0 22px;
+  }
+
+  .page-title {
+    font-size: 34px;
+  }
 }
 </style>

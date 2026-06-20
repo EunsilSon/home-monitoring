@@ -61,6 +61,7 @@ const getValue = (key: MetricConfig['key']) =>
 .metric-section {
   width: 100%;
   margin-bottom: 4px;
+  min-width: 0;
 }
 
 .section-label {
@@ -68,13 +69,13 @@ const getValue = (key: MetricConfig['key']) =>
   font-weight: 600;
   color: #8e8e93;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0;
   margin-bottom: 10px;
 }
 
 .cards-stack {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 </style>

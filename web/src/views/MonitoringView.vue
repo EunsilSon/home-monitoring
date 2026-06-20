@@ -87,24 +87,44 @@ const sensorStatusLabel = computed(() => {
 <style scoped>
 .monitoring-view {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #f2f2f7;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .scroll-area {
   flex: 1;
-  padding: 0 20px 40px;
-  max-width: 600px;
+  padding: 12px 16px 36px;
+  max-width: 640px;
   margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .spacer { height: 20px; }
 
 .mb-4 { margin-bottom: 16px; }
+
+@media (min-width: 768px) {
+  .scroll-area {
+    padding: 24px 28px 48px;
+  }
+
+  .spacer {
+    height: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .scroll-area {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
 
 /* Fade transition */
 .fade-enter-active,

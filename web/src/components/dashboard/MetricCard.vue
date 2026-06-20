@@ -48,15 +48,17 @@ const displayValue = computed(() => {
 <style scoped>
 .metric-card {
   border-radius: 20px;
-  padding: 20px 22px;
-  height: 88px;
+  padding: 18px 20px;
+  min-height: 88px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   border: 0.5px solid rgba(0, 0, 0, 0.06);
   position: relative;
   overflow: hidden;
   transition: transform 0.18s ease;
+  min-width: 0;
 }
 .metric-card:active { transform: scale(0.985); }
 
@@ -83,6 +85,8 @@ const displayValue = computed(() => {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .card-icon {
@@ -100,8 +104,10 @@ const displayValue = computed(() => {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   margin-bottom: 2px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .card-temp .card-label { color: #0056cc; }
 .card-humi .card-label { color: #007a5a; }
@@ -110,6 +116,11 @@ const displayValue = computed(() => {
 .card-sublabel {
   font-size: 11px;
   color: #8e8e93;
+  line-height: 1.35;
+}
+
+.card-text {
+  min-width: 0;
 }
 
 /* ── right side ── */
@@ -118,13 +129,14 @@ const displayValue = computed(() => {
   align-items: baseline;
   gap: 2px;
   flex-shrink: 0;
+  max-width: 48%;
 }
 
 .card-value {
   font-size: 36px;
   font-weight: 300;
   line-height: 1;
-  letter-spacing: -1px;
+  letter-spacing: 0;
   transition: opacity 0.4s ease;
 }
 .card-value.refreshing { opacity: 0.35; }
@@ -144,7 +156,8 @@ const displayValue = computed(() => {
 /* skeleton */
 .skeleton {
   display: inline-block;
-  width: 70px; height: 32px;
+  width: 70px;
+  height: 32px;
   border-radius: 6px;
   background: linear-gradient(90deg, #e8e8e8 25%, #f4f4f4 50%, #e8e8e8 75%);
   background-size: 200% 100%;
@@ -153,5 +166,47 @@ const displayValue = computed(() => {
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+@media (max-width: 420px) {
+  .metric-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .card-left {
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+
+  .card-value {
+    font-size: 32px;
+  }
+
+  .card-unit {
+    font-size: 14px;
+  }
+
+  .skeleton {
+    width: 58px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 330px) {
+  .metric-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-value-wrap {
+    max-width: 100%;
+    align-self: flex-end;
+  }
 }
 </style>

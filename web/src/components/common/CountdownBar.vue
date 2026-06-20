@@ -42,10 +42,12 @@ const secondsLeft = computed(() => {
 .countdown-label {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   font-size: 13px;
   color: #8e8e93;
   margin-top: 30px;
   margin-bottom: 6px;
+  line-height: 1.35;
 }
 
 .countdown-track {
@@ -60,5 +62,12 @@ const secondsLeft = computed(() => {
   background: #007aff;
   border-radius: 99px;
   transition: width 0.9s linear;
+}
+
+@media (max-width: 360px) {
+  .countdown-label {
+    flex-direction: column;
+    gap: 2px;
+  }
 }
 </style>
