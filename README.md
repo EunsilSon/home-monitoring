@@ -7,6 +7,8 @@ DHT22 온습도 센서 값을 수집해서 PostgreSQL에 저장하고, Vue 기�
 ### 구축 과정
 홈 모니터링 시스템 구축 과정을 아래 블로그에서 확인할 수 있습니다.  
 - [Chapter 1. 아두이노부터 클라우드 배포까지 설계와 기획](https://velog.io/@eunsilson/%ED%99%88-IoT-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%95%84%EB%91%90%EC%9D%B4%EB%85%B8%EB%B6%80%ED%84%B0-%ED%81%B4%EB%9D%BC%EC%9A%B0%EB%93%9C-%EB%B0%B0%ED%8F%AC%EA%B9%8C%EC%A7%80-%EC%84%A4%EA%B3%84%EC%99%80-%EA%B8%B0%ED%9A%8D)
+- [Chapter 2. 센서 데이터 수집 및 전송](https://velog.io/@eunsilson/Chap2.-%EC%84%BC%EC%84%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%88%98%EC%A7%91-%EB%B0%8F-%EC%A0%84%EC%86%A1)
+- [Chapter 3. Spring Boot와 DB: 실시간 데이터 저장하기](https://velog.io/@eunsilson/Chap3.-SpringBoot%EC%99%80-DB-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0)
 
 <br>
 
