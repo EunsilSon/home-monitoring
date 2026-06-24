@@ -1,6 +1,5 @@
 package com.eunsilson.homemonitoring.service;
 
-import com.eunsilson.homemonitoring.domain.DeviceIds;
 import com.eunsilson.homemonitoring.domain.dto.DeviceStatusResponse;
 import com.eunsilson.homemonitoring.domain.entity.DeviceEntity;
 import com.eunsilson.homemonitoring.repository.DeviceRepository;
@@ -10,20 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class DeviceServiceImpl implements DeviceService {
-    private static final Duration OFFLINE_THRESHOLD = Duration.ofSeconds(45);
+    private static final Duration OFFLINE_THRESHOLD = Duration.ofSeconds(180);
 
     private final DeviceRepository deviceRepository;
 
     @Override
     @Transactional
-    public void recordHeartbeat() {
+    public void recordSensorDataReceived(UUID deviceId) {
         Instant now = Instant.now();
-        DeviceEntity device = deviceRepository.findById(DeviceIds.DEFAULT_DEVICE_ID)
-                .orElseGet(() -> DeviceEntity.createDefault(DeviceIds.DEFAULT_DEVICE_ID, now));
+        DeviceEntity device = deviceRepository.findById(deviceId)
+                .orElseGet(() -> DeviceEntity.createDefault(deviceId, now));
 
         device.markSeen(now);
         deviceRepository.save(device);
@@ -31,16 +31,16 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     @Transactional(readOnly = true)
-    public DeviceStatusResponse getStatus() {
+    public DeviceStatusResponse getStatus(UUID deviceId) {
         Instant now = Instant.now();
-        Instant lastSeenAt = deviceRepository.findById(DeviceIds.DEFAULT_DEVICE_ID)
+        Instant lastSeenAt = deviceRepository.findById(deviceId)
                 .map(DeviceEntity::getLastSeenAt)
                 .orElse(null);
 
         String status = resolveStatus(lastSeenAt, now);
 
         return new DeviceStatusResponse(
-                DeviceIds.DEFAULT_DEVICE_ID,
+                deviceId,
                 status,
                 lastSeenAt,
                 now,
@@ -53,8 +53,8 @@ public class DeviceServiceImpl implements DeviceService {
             return "UNKNOWN";
         }
         if (lastSeenAt.isBefore(now.minus(OFFLINE_THRESHOLD))) {
-            return "OFFLINE";
+            return "OFF";
         }
-        return "ONLINE";
+        return "ON";
     }
 }

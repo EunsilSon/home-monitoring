@@ -7,7 +7,7 @@ export interface SensorData {
   updatedAt:   string
 }
 
-export type DeviceStatusValue = 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
+export type DeviceStatusValue = 'ON' | 'OFF' | 'UNKNOWN'
 
 export interface DeviceStatus {
   deviceId:                 string

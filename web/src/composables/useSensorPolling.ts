@@ -115,11 +115,14 @@ export function useSensorPolling() {
     if (status.value === 'error') {
       return 'error'
     }
-    if (device.value?.status === 'OFFLINE') {
+    if (device.value?.status === 'OFF') {
       return 'offline'
     }
     if (device.value?.status === 'UNKNOWN') {
       return 'unknown'
+    }
+    if (device.value?.status === 'ON') {
+      return 'success'
     }
     if (!data.value) {
       return 'unknown'

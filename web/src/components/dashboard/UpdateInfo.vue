@@ -37,7 +37,7 @@ const props = defineProps<Props>()
       <div class="info-row">
         <div class="info-row-left">
           <div class="info-icon">💓</div>
-          <span class="info-key">마지막 신호 시각</span>
+          <span class="info-key">마지막 데이터 수신 시각</span>
         </div>
         <span class="info-val">{{ lastSeenLabel }}</span>
       </div>

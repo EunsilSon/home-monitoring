@@ -19,10 +19,10 @@ const labelMap: Record<ConnectionStatus, string> = {
 const prefixMap: Record<ConnectionStatus, string> = {
   idle:    'CHECK',
   loading: 'SYNC',
-  success: 'LIVE',
+  success: 'ON',
   error:   'ERROR',
-  offline: 'OFFLINE',
-  unknown: 'CHECK',
+  offline: 'OFF',
+  unknown: 'UNKNOWN',
 }
 </script>
 

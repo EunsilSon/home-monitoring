@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +42,7 @@ public class SensorServiceImplTest {
 
         List<SensorDataRequest> requests = IntStream.range(0, 30)
                 .mapToObj(i -> new SensorDataRequest(
+                        DeviceIds.DEFAULT_DEVICE_ID,
                         "20.0",
                         "30.0",
                         "21.0",
@@ -60,8 +62,8 @@ public class SensorServiceImplTest {
         boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
 
         assertTrue(result);
+        verify(deviceService).recordSensorDataReceived(DeviceIds.DEFAULT_DEVICE_ID);
         verify(sensorDataRepository).saveAll(anyList());
-        verify(deviceService).recordHeartbeat();
     }
 
     @Test
@@ -79,7 +81,7 @@ public class SensorServiceImplTest {
         when(sensorLatestRepository.findByDeviceId(any(UUID.class)))
                 .thenReturn(expected);
 
-        SensorLatestEntity result = sensorService.getLatest();
+        SensorLatestEntity result = sensorService.getLatest(DeviceIds.DEFAULT_DEVICE_ID);
 
         verify(sensorLatestRepository, times(1))
                 .findByDeviceId(any(UUID.class));

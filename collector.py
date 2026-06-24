@@ -8,10 +8,9 @@ from datetime import datetime, timezone
 SERIAL_PORT = os.getenv("SERIAL_PORT", "COM3")
 BAUD_RATE = int(os.getenv("BAUD_RATE", "9600"))
 API_BASE_URL = os.getenv("API_BASE_URL", "http://192.168.0.13:8000")
+DEVICE_ID = os.getenv("DEVICE_ID", "220aa852-ee70-4105-8cf5-98c23cb5e631")
 
 SENSOR_API_URL = f"{API_BASE_URL}/api/sensor/bulk"
-HEARTBEAT_API_URL = f"{API_BASE_URL}/api/device/heartbeat"
-HEARTBEAT_INTERVAL_SECONDS = int(os.getenv("HEARTBEAT_INTERVAL_SECONDS", "15"))
 SENSOR_SEND_INTERVAL_SECONDS = int(os.getenv("SENSOR_SEND_INTERVAL_SECONDS", "60"))
 
 session = requests.Session()
@@ -19,26 +18,9 @@ session = requests.Session()
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
 buffer = []
-last_heartbeat_at = 0
 last_sensor_sent_at = time.monotonic()
 
 print("Collector started...")
-
-
-def send_heartbeat():
-    global last_heartbeat_at
-
-    now = time.monotonic()
-    if now - last_heartbeat_at < HEARTBEAT_INTERVAL_SECONDS:
-        return
-
-    try:
-        response = session.post(HEARTBEAT_API_URL, timeout=5)
-        print("heartbeat status: ", response.status_code)
-    except Exception as e:
-        print("Heartbeat send failed: ", e)
-    finally:
-        last_heartbeat_at = now
 
 
 def send_sensor_data():
@@ -62,8 +44,6 @@ def send_sensor_data():
 
 
 while True:
-    send_heartbeat()
-
     try:
         line = ser.readline().decode(errors="ignore").strip()
         if not line:
@@ -72,6 +52,7 @@ while True:
         data = json.loads(line)
 
         payload = {
+            "deviceId": DEVICE_ID,
             "temperature": data.get("temperature"),
             "humidity": data.get("humidity"),
             "heatIndex": data.get("heatIndex"),

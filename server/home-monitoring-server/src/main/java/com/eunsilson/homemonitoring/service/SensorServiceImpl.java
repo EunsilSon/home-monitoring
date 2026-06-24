@@ -1,6 +1,5 @@
 package com.eunsilson.homemonitoring.service;
 
-import com.eunsilson.homemonitoring.domain.DeviceIds;
 import com.eunsilson.homemonitoring.domain.dto.SensorDataRequest;
 import com.eunsilson.homemonitoring.domain.entity.SensorDataEntity;
 import com.eunsilson.homemonitoring.domain.entity.SensorLatestEntity;
@@ -11,8 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.BinaryOperator;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,33 +24,43 @@ public class SensorServiceImpl implements SensorService {
     private final SensorLatestRepository sensorLatestRepository;
     private final DeviceService deviceService;
 
-    public SensorLatestEntity getLatest() {
-        return sensorLatestRepository.findByDeviceId(DeviceIds.DEFAULT_DEVICE_ID);
+    public SensorLatestEntity getLatest(UUID deviceId) {
+        return sensorLatestRepository.findByDeviceId(deviceId);
     }
 
     @Override
     @Transactional
     public boolean saveSensorDataAndLatestUpdate(List<SensorDataRequest> requests) {
+        if (requests.isEmpty()) {
+            return false;
+        }
+
         List<SensorDataEntity> entities = requests.stream()
-                .map(r -> r.toSensorData(DeviceIds.DEFAULT_DEVICE_ID))
+                .map(SensorDataRequest::toSensorData)
                 .toList();
+
+        entities.stream()
+                .map(SensorDataEntity::getDeviceId)
+                .distinct()
+                .forEach(deviceService::recordSensorDataReceived);
 
         sensorDataRepository.saveAll(entities);
 
-        SensorDataEntity latestData = entities.stream()
-                .max(Comparator.comparing(SensorDataEntity::getRecordedAt))
-                .orElseThrow();
+        var latestDataByDevice = entities.stream()
+                .collect(Collectors.toMap(
+                        SensorDataEntity::getDeviceId,
+                        Function.identity(),
+                        BinaryOperator.maxBy(Comparator.comparing(SensorDataEntity::getRecordedAt))
+                ));
 
-        boolean updated = updateLatest(latestData);
-        if (updated) {
-            deviceService.recordHeartbeat();
-        }
-        return updated;
+        return latestDataByDevice.values().stream()
+                .map(this::updateLatest)
+                .allMatch(Boolean::booleanValue);
     }
 
     private boolean updateLatest(SensorDataEntity latestData) {
         var result = sensorLatestRepository.upsert(
-                DeviceIds.DEFAULT_DEVICE_ID,
+                latestData.getDeviceId(),
                 latestData.getTemperature(),
                 latestData.getHumidity(),
                 latestData.getHeatIndex(),
