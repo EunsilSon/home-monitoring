@@ -44,7 +44,7 @@ const props = defineProps<Props>()
     </div>
 
     <!-- 다음 업데이트 -->
-    <CountdownBar :ratio="countdownRatio" />
+    <CountdownBar :ratio="countdownRatio" :paused="props.sensorStatus === 'offline'" />
   </div>
 </template>
 

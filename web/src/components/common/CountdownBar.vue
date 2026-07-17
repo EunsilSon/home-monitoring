@@ -4,6 +4,7 @@ import { POLLING_INTERVAL_MS } from '@/constants/polling'
 
 interface Props {
   ratio: number
+  paused?: boolean
 }
 
 const props = defineProps<Props>()
@@ -12,24 +13,29 @@ const intervalSeconds = POLLING_INTERVAL_MS / 1000
 const secondsLeft = computed(() => {
   return Math.ceil(props.ratio * intervalSeconds)
 })
+
+const progressRatio = computed(() => {
+  return props.paused ? 0 : props.ratio
+})
 </script>
 
 <template>
   <div class="countdown-wrap">
     <div class="countdown-label">
-      <span>약 {{ secondsLeft }}초 후 업데이트</span>
-      <span>1분 주기</span>
+      <span>{{ props.paused ? '센서 오프라인' : `약 ${secondsLeft}초 후 업데이트` }}</span>
+      <span>{{ props.paused ? '업데이트 대기' : '1분 주기' }}</span>
     </div>
     <div
         class="countdown-track"
         role="progressbar"
-        :aria-valuenow="Math.round(props.ratio * 100)"
+        :aria-valuenow="Math.round(progressRatio * 100)"
         aria-valuemin="0"
         aria-valuemax="100"
     >
       <div
           class="countdown-fill"
-          :style="{ width: `${props.ratio * 100}%` }"
+          :class="{ 'countdown-fill--paused': props.paused }"
+          :style="{ width: `${progressRatio * 100}%` }"
       />
     </div>
   </div>
@@ -63,6 +69,11 @@ const secondsLeft = computed(() => {
   background: #007aff;
   border-radius: 99px;
   transition: width 0.9s linear;
+}
+
+.countdown-fill--paused {
+  background: #8e8e93;
+  transition: none;
 }
 
 @media (max-width: 360px) {
