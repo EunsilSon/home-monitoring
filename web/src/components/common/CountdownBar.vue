@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { POLLING_INTERVAL_MS } from '@/constants/polling'
 
 interface Props {
   ratio: number
 }
 
 const props = defineProps<Props>()
+const intervalSeconds = POLLING_INTERVAL_MS / 1000
 
 const secondsLeft = computed(() => {
-  const INTERVAL_S = 30
-  return Math.ceil(props.ratio * INTERVAL_S)
+  return Math.ceil(props.ratio * intervalSeconds)
 })
 </script>
 
@@ -17,7 +18,7 @@ const secondsLeft = computed(() => {
   <div class="countdown-wrap">
     <div class="countdown-label">
       <span>약 {{ secondsLeft }}초 후 업데이트</span>
-      <span>30초 주기</span>
+      <span>1분 주기</span>
     </div>
     <div
         class="countdown-track"
