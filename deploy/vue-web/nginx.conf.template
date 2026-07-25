@@ -1,0 +1,23 @@
+server {
+    listen 80;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        # POST, PUT, DELETE 요청에는 API Key 검증 (GET은 대시보드 조회용으로 공개)
+        set $block "";
+        if ($request_method = POST)   { set $block "1"; }
+        if ($request_method = PUT)    { set $block "1"; }
+        if ($request_method = DELETE) { set $block "1"; }
+        if ($http_x_api_key != "${API_KEY}") { set $block "${block}2"; }
+        if ($block = "12") { return 403 '{"error":"Forbidden - Invalid API Key"}'; }
+
+        proxy_pass http://java-server:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}

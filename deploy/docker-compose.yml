@@ -8,8 +8,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -44,6 +42,8 @@ services:
       context: ./vue-web
       dockerfile: Dockerfile
     container_name: home_web
+    environment:
+      API_KEY: ${API_KEY}
     ports:
       - "80:80"
     depends_on:

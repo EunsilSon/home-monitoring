@@ -13,7 +13,10 @@ DEVICE_ID = os.getenv("DEVICE_ID", "220aa852-ee70-4105-8cf5-98c23cb5e631")
 SENSOR_API_URL = f"{API_BASE_URL}/api/sensor/bulk"
 SENSOR_SEND_INTERVAL_SECONDS = int(os.getenv("SENSOR_SEND_INTERVAL_SECONDS", "60"))
 
+API_KEY = os.getenv("API_KEY", "")
+
 session = requests.Session()
+session.headers.update({"X-API-Key": API_KEY})
 
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
