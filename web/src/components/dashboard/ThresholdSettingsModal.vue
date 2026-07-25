@@ -71,12 +71,12 @@ function validate(): boolean {
   const errors: string[] = []
 
   const fields = [
-    { label: 'Temperature Min', value: temperatureMin.value, max: temperatureMax.value, maxLabel: 'Temperature Max' },
-    { label: 'Temperature Max', value: temperatureMax.value, min: temperatureMin.value, minLabel: 'Temperature Min' },
-    { label: 'Humidity Min', value: humidityMin.value, max: humidityMax.value, maxLabel: 'Humidity Max' },
-    { label: 'Humidity Max', value: humidityMax.value, min: humidityMin.value, minLabel: 'Humidity Min' },
-    { label: 'Heat Index Min', value: heatIndexMin.value, max: heatIndexMax.value, maxLabel: 'Heat Index Max' },
-    { label: 'Heat Index Max', value: heatIndexMax.value, min: heatIndexMin.value, minLabel: 'Heat Index Min' },
+    { label: '온도 최소', value: temperatureMin.value, max: temperatureMax.value, maxLabel: '온도 최대' },
+    { label: '온도 최대', value: temperatureMax.value, min: temperatureMin.value, minLabel: '온도 최소' },
+    { label: '습도 최소', value: humidityMin.value, max: humidityMax.value, maxLabel: '습도 최대' },
+    { label: '습도 최대', value: humidityMax.value, min: humidityMin.value, minLabel: '습도 최소' },
+    { label: '체감 온도 최소', value: heatIndexMin.value, max: heatIndexMax.value, maxLabel: '체감 온도 최대' },
+    { label: '체감 온도 최대', value: heatIndexMax.value, min: heatIndexMin.value, minLabel: '체감 온도 최소' },
   ]
 
   for (const field of fields) {
@@ -93,19 +93,19 @@ function validate(): boolean {
   if (temperatureMin.value && temperatureMax.value &&
       !isNaN(Number(temperatureMin.value)) && !isNaN(Number(temperatureMax.value))) {
     if (Number(temperatureMin.value) >= Number(temperatureMax.value)) {
-      errors.push('Temperature Min 값은 Max 값보다 작아야 합니다.')
+      errors.push('온도 최소 값은 최대 값보다 작아야 합니다.')
     }
   }
   if (humidityMin.value && humidityMax.value &&
       !isNaN(Number(humidityMin.value)) && !isNaN(Number(humidityMax.value))) {
     if (Number(humidityMin.value) >= Number(humidityMax.value)) {
-      errors.push('Humidity Min 값은 Max 값보다 작아야 합니다.')
+      errors.push('습도 최소 값은 최대 값보다 작아야 합니다.')
     }
   }
   if (heatIndexMin.value && heatIndexMax.value &&
       !isNaN(Number(heatIndexMin.value)) && !isNaN(Number(heatIndexMax.value))) {
     if (Number(heatIndexMin.value) >= Number(heatIndexMax.value)) {
-      errors.push('Heat Index Min 값은 Max 값보다 작아야 합니다.')
+      errors.push('체감 온도 최소 값은 최대 값보다 작아야 합니다.')
     }
   }
 
@@ -186,12 +186,11 @@ function handleOverlayClick(e: MouseEvent) {
 
           <!-- Form -->
           <div v-else class="form-content">
-            <!-- Temperature -->
+            <!-- 온도 -->
             <div class="field-group">
-              <p class="field-group-label">Temperature</p>
-              <div class="field-row">
+              <div class="field-row-stack">
                 <div class="field">
-                  <label class="field-label">Min</label>
+                  <label class="field-label">최소 온도</label>
                   <input
                       v-model="temperatureMin"
                       type="number"
@@ -201,7 +200,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">Max</label>
+                  <label class="field-label">최대 온도</label>
                   <input
                       v-model="temperatureMax"
                       type="number"
@@ -213,12 +212,11 @@ function handleOverlayClick(e: MouseEvent) {
               </div>
             </div>
 
-            <!-- Humidity -->
+            <!-- 습도 -->
             <div class="field-group">
-              <p class="field-group-label">Humidity</p>
-              <div class="field-row">
+              <div class="field-row-stack">
                 <div class="field">
-                  <label class="field-label">Min</label>
+                  <label class="field-label">최소 습도</label>
                   <input
                       v-model="humidityMin"
                       type="number"
@@ -228,7 +226,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">Max</label>
+                  <label class="field-label">최대 습도</label>
                   <input
                       v-model="humidityMax"
                       type="number"
@@ -240,12 +238,11 @@ function handleOverlayClick(e: MouseEvent) {
               </div>
             </div>
 
-            <!-- Heat Index -->
+            <!-- 체감 온도 -->
             <div class="field-group">
-              <p class="field-group-label">Heat Index</p>
-              <div class="field-row">
+              <div class="field-row-stack">
                 <div class="field">
-                  <label class="field-label">Min</label>
+                  <label class="field-label">최소 체감 온도</label>
                   <input
                       v-model="heatIndexMin"
                       type="number"
@@ -255,7 +252,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">Max</label>
+                  <label class="field-label">최대 체감 온도</label>
                   <input
                       v-model="heatIndexMax"
                       type="number"
@@ -267,9 +264,9 @@ function handleOverlayClick(e: MouseEvent) {
               </div>
             </div>
 
-            <!-- Slack Alert Toggle -->
+            <!-- 슬랙 알림 토글 -->
             <div class="field-group">
-              <p class="field-group-label">Slack Alert</p>
+              <p class="field-group-label">슬랙 알림</p>
               <div class="toggle-row">
                 <span class="toggle-label">{{ slackEnabled ? 'ON' : 'OFF' }}</span>
                 <button
@@ -418,6 +415,12 @@ function handleOverlayClick(e: MouseEvent) {
 .field-row {
   display: flex;
   gap: 12px;
+}
+
+.field-row-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .field {
