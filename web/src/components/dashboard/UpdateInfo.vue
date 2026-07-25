@@ -11,12 +11,21 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'settings-click'): void
+}>()
 </script>
 
 <template>
   <div class="update-section">
     <!-- 장치 정보 -->
-    <p class="section-label">장치 정보</p>
+    <div class="section-header">
+      <p class="section-label">장치 정보</p>
+      <button class="settings-btn" @click="emit('settings-click')" aria-label="임계값 설정">
+        <span class="settings-icon">⚙</span>
+        설정
+      </button>
+    </div>
     <div class="info-card">
       <div class="info-row">
         <div class="info-row-left">
@@ -54,13 +63,43 @@ const props = defineProps<Props>()
   min-width: 0;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .section-label {
   font-size: 13px;
   font-weight: 600;
   color: #8e8e93;
   text-transform: uppercase;
   letter-spacing: 0;
-  margin-bottom: 8px;
+}
+
+.settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.settings-btn:hover {
+  background: rgba(0, 122, 255, 0.18);
+}
+
+.settings-icon {
+  font-size: 13px;
 }
 
 /* ── Info card ── */

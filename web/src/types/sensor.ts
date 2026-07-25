@@ -28,3 +28,26 @@ export interface MetricConfig {
   colorVar:  string
   cardClass: string
 }
+
+export interface ThresholdData {
+  deviceId:        string
+  temperatureMin:  number | null
+  temperatureMax:  number | null
+  humidityMin:     number | null
+  humidityMax:     number | null
+  heatIndexMin:    number | null
+  heatIndexMax:    number | null
+  slackEnabled:    boolean
+  createdAt:       string | null
+  updatedAt:       string | null
+}
+
+export interface ThresholdRequest {
+  temperatureMin:  number | null
+  temperatureMax:  number | null
+  humidityMin:     number | null
+  humidityMax:     number | null
+  heatIndexMin:    number | null
+  heatIndexMax:    number | null
+  slackEnabled:    boolean
+}
