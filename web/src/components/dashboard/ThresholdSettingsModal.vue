@@ -27,24 +27,36 @@ const isLoading = ref(false)
 const isSaving  = ref(false)
 const errorMsg  = ref('')
 const successMsg = ref('')
-const triedToSave = ref(false)
 
 const hasEmptyFields = computed(() => {
   const fields = [temperatureMin.value, temperatureMax.value, humidityMin.value, humidityMax.value, heatIndexMin.value, heatIndexMax.value]
   return fields.some(f => String(f).trim() === '' || isNaN(Number(f)))
 })
 
-const hasMinMaxError = computed(() => {
-  if (hasEmptyFields.value) return false
-  if (Number(temperatureMin.value) >= Number(temperatureMax.value)) return true
-  if (Number(humidityMin.value) >= Number(humidityMax.value)) return true
-  if (Number(heatIndexMin.value) >= Number(heatIndexMax.value)) return true
-  return false
+const temperatureError = computed(() => {
+  if (String(temperatureMin.value).trim() === '' || String(temperatureMax.value).trim() === '') return ''
+  if (isNaN(Number(temperatureMin.value)) || isNaN(Number(temperatureMax.value))) return ''
+  if (Number(temperatureMin.value) >= Number(temperatureMax.value)) return '최소값은 최대값보다 작아야 합니다'
+  return ''
 })
 
-function isFieldEmpty(value: string): boolean {
-  return triedToSave.value && (String(value).trim() === '' || isNaN(Number(value)))
-}
+const humidityError = computed(() => {
+  if (String(humidityMin.value).trim() === '' || String(humidityMax.value).trim() === '') return ''
+  if (isNaN(Number(humidityMin.value)) || isNaN(Number(humidityMax.value))) return ''
+  if (Number(humidityMin.value) >= Number(humidityMax.value)) return '최소값은 최대값보다 작아야 합니다'
+  return ''
+})
+
+const heatIndexError = computed(() => {
+  if (String(heatIndexMin.value).trim() === '' || String(heatIndexMax.value).trim() === '') return ''
+  if (isNaN(Number(heatIndexMin.value)) || isNaN(Number(heatIndexMax.value))) return ''
+  if (Number(heatIndexMin.value) >= Number(heatIndexMax.value)) return '최소값은 최대값보다 작아야 합니다'
+  return ''
+})
+
+const hasMinMaxError = computed(() => {
+  return temperatureError.value !== '' || humidityError.value !== '' || heatIndexError.value !== ''
+})
 
 // Fetch threshold when modal opens
 watch(() => props.visible, async (newVal) => {
@@ -86,7 +98,6 @@ async function loadThreshold() {
 async function handleSave() {
   successMsg.value = ''
   errorMsg.value = ''
-  triedToSave.value = true
 
   if (hasEmptyFields.value || hasMinMaxError.value) return
 
@@ -134,7 +145,6 @@ function resetForm() {
   slackEnabled.value   = false
   errorMsg.value       = ''
   successMsg.value     = ''
-  triedToSave.value    = false
 }
 
 function handleOverlayClick(e: MouseEvent) {
@@ -171,7 +181,7 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="temperatureMin"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(temperatureMin) }]"
+                      class="field-input"
                       placeholder="예: 15"
                   />
                 </div>
@@ -181,11 +191,12 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="temperatureMax"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(temperatureMax) }]"
+                      class="field-input"
                       placeholder="예: 30"
                   />
                 </div>
               </div>
+              <p v-if="temperatureError" class="field-error">{{ temperatureError }}</p>
             </div>
 
             <!-- 습도 -->
@@ -198,7 +209,7 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="humidityMin"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(humidityMin) }]"
+                      class="field-input"
                       placeholder="예: 30"
                   />
                 </div>
@@ -208,11 +219,12 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="humidityMax"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(humidityMax) }]"
+                      class="field-input"
                       placeholder="예: 80"
                   />
                 </div>
               </div>
+              <p v-if="humidityError" class="field-error">{{ humidityError }}</p>
             </div>
 
             <!-- 체감 온도 -->
@@ -225,7 +237,7 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="heatIndexMin"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(heatIndexMin) }]"
+                      class="field-input"
                       placeholder="예: 18"
                   />
                 </div>
@@ -235,11 +247,12 @@ function handleOverlayClick(e: MouseEvent) {
                       v-model="heatIndexMax"
                       type="number"
                       step="0.1"
-                      :class="['field-input', { 'field-input--error': isFieldEmpty(heatIndexMax) }]"
+                      class="field-input"
                       placeholder="예: 32"
                   />
                 </div>
               </div>
+              <p v-if="heatIndexError" class="field-error">{{ heatIndexError }}</p>
             </div>
 
             <!-- 슬랙 알림 토글 -->
@@ -422,9 +435,11 @@ function handleOverlayClick(e: MouseEvent) {
   color: #c7c7cc;
 }
 
-.field-input--error {
-  border-color: #ff3b30;
-  background: rgba(255, 59, 48, 0.04);
+.field-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff3b30;
+  font-weight: 500;
 }
 
 /* ── Toggle ── */
