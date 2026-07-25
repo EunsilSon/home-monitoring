@@ -61,7 +61,7 @@ async function loadThreshold() {
         return
       }
     }
-    errorMsg.value = '임계값 설정을 불러오지 못했습니다.'
+    errorMsg.value = '알림 맞춤 설정을 불러오지 못했습니다.'
   } finally {
     isLoading.value = false
   }
@@ -133,13 +133,13 @@ async function handleSave() {
 
   try {
     await sensorService.saveThreshold(props.deviceId, request)
-    successMsg.value = '임계값 설정이 저장되었습니다.'
+    successMsg.value = '알림 맞춤 설정이 저장되었습니다.'
     emit('saved')
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'response' in err) {
       const axiosErr = err as { response?: { status?: number } }
       if (axiosErr.response?.status === 403) {
-        alert('권한이 없어 임계값 설정을 저장할 수 없습니다.')
+        alert('권한이 없어 알림 맞춤 설정을 저장할 수 없습니다.')
         return
       }
     }
@@ -175,7 +175,7 @@ function handleOverlayClick(e: MouseEvent) {
       <div class="modal-card">
         <!-- Header -->
         <div class="modal-header">
-          <h2 class="modal-title">임계값 설정</h2>
+          <h2 class="modal-title">알림 맞춤 설정</h2>
           <button class="close-btn" @click="emit('close')" aria-label="닫기">&times;</button>
         </div>
 

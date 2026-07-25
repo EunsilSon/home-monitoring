@@ -21,7 +21,7 @@ const emit = defineEmits<{
     <!-- 장치 정보 -->
     <div class="section-header">
       <p class="section-label">장치 정보</p>
-      <button class="settings-btn" @click="emit('settings-click')" aria-label="임계값 설정">
+      <button class="settings-btn" @click="emit('settings-click')" aria-label="알림 맞춤 설정">
         <span class="settings-icon">⚙</span>
         설정
       </button>
