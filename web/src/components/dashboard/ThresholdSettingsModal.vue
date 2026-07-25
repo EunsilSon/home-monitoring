@@ -135,7 +135,14 @@ async function handleSave() {
     await sensorService.saveThreshold(props.deviceId, request)
     successMsg.value = '임계값 설정이 저장되었습니다.'
     emit('saved')
-  } catch {
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'response' in err) {
+      const axiosErr = err as { response?: { status?: number } }
+      if (axiosErr.response?.status === 403) {
+        alert('권한이 없어 임계값 설정을 저장할 수 없습니다.')
+        return
+      }
+    }
     errorMsg.value = '저장에 실패했습니다. 다시 시도해주세요.'
   } finally {
     isSaving.value = false

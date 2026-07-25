@@ -2,11 +2,14 @@ import axios from 'axios'
 import type { DeviceStatus, SensorData, ThresholdData, ThresholdRequest } from '@/types/sensor'
 import { API_BASE_URL, API_ENDPOINTS, DEFAULT_DEVICE_ID } from '@/constants/api'
 
+const API_KEY = import.meta.env.VITE_API_KEY || ''
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
+    ...(API_KEY ? { 'X-Api-Key': API_KEY } : {}),
   },
 })
 
