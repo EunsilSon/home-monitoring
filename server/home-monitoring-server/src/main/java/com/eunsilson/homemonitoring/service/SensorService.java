@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface SensorService {
     SensorLatestEntity getLatest(UUID deviceId);
     boolean saveSensorDataAndLatestUpdate(List<SensorDataRequest> requests);
+    boolean sendSlackAlertIfThresholdExceeded(UUID deviceId, List<SensorDataRequest> requests);
 }

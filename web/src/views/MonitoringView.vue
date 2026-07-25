@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
-import DashboardFooter from '@/components/dashboard/DashboardFooter.vue'
-import MetricGrid      from '@/components/dashboard/MetricGrid.vue'
-import UpdateInfo      from '@/components/dashboard/UpdateInfo.vue'
-import StatusDot       from '@/components/common/StatusDot.vue'
-import ErrorChip       from '@/components/common/ErrorChip.vue'
+import { computed, ref } from 'vue'
+import DashboardHeader        from '@/components/dashboard/DashboardHeader.vue'
+import DashboardFooter        from '@/components/dashboard/DashboardFooter.vue'
+import MetricGrid             from '@/components/dashboard/MetricGrid.vue'
+import UpdateInfo             from '@/components/dashboard/UpdateInfo.vue'
+import ThresholdSettingsModal from '@/components/dashboard/ThresholdSettingsModal.vue'
+import StatusDot              from '@/components/common/StatusDot.vue'
+import ErrorChip              from '@/components/common/ErrorChip.vue'
 import { useSensorPolling } from '@/composables/useSensorPolling'
 import { useDatetime }      from '@/composables/useDatetime'
+import { DEFAULT_DEVICE_ID } from '@/constants/api'
 
 const {
   data,
@@ -44,6 +46,8 @@ const sensorStatusLabel = computed(() => {
 
   return labelMap[connectionStatus.value]
 })
+
+const showThresholdModal = ref(false)
 </script>
 
 <template>
@@ -76,11 +80,19 @@ const sensorStatusLabel = computed(() => {
           :last-fetched-label="lastFetchedLabel"
           :last-seen-label="lastSeenLabel"
           :countdown-ratio="countdownRatio"
+          @settings-click="showThresholdModal = true"
       />
 
       <!-- Footer -->
       <DashboardFooter />
     </div>
+
+    <!-- Threshold Settings Modal -->
+    <ThresholdSettingsModal
+        :device-id="DEFAULT_DEVICE_ID"
+        :visible="showThresholdModal"
+        @close="showThresholdModal = false"
+    />
   </div>
 </template>
 

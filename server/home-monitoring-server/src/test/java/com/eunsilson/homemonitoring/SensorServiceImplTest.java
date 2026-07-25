@@ -2,11 +2,14 @@ package com.eunsilson.homemonitoring;
 
 import com.eunsilson.homemonitoring.domain.DeviceIds;
 import com.eunsilson.homemonitoring.domain.dto.SensorDataRequest;
+import com.eunsilson.homemonitoring.domain.dto.ThresholdResult;
 import com.eunsilson.homemonitoring.domain.entity.SensorLatestEntity;
 import com.eunsilson.homemonitoring.repository.SensorDataRepository;
 import com.eunsilson.homemonitoring.repository.SensorLatestRepository;
 import com.eunsilson.homemonitoring.service.DeviceService;
 import com.eunsilson.homemonitoring.service.SensorServiceImpl;
+import com.eunsilson.homemonitoring.service.ThresholdService;
+import com.eunsilson.homemonitoring.slack.SlackService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +37,12 @@ public class SensorServiceImplTest {
     @Mock
     private DeviceService deviceService;
 
+    @Mock
+    private ThresholdService thresholdService;
+
+    @Mock
+    private SlackService slackService;
+
     @InjectMocks
     private SensorServiceImpl sensorService;
 
@@ -59,11 +68,91 @@ public class SensorServiceImplTest {
                 any(Instant.class)
         )).thenReturn(1);
 
+        ThresholdResult notExceeded = new ThresholdResult(false, List.of());
+        when(thresholdService.evaluateThreshold(any())).thenReturn(notExceeded);
+        when(thresholdService.shouldSendNotification(any(UUID.class), eq(false))).thenReturn(false);
+
         boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
 
         assertTrue(result);
         verify(deviceService).recordSensorDataReceived(DeviceIds.DEFAULT_DEVICE_ID);
         verify(sensorDataRepository).saveAll(anyList());
+        verify(thresholdService, atLeastOnce()).evaluateThreshold(any());
+        verify(slackService, never()).sendThresholdAlert(any(), any());
+    }
+
+    @Test
+    void saveSensorDataAndLatestUpdate_shouldSendSlackAlertWhenThresholdExceeded() {
+
+        List<SensorDataRequest> requests = List.of(
+                new SensorDataRequest(
+                        DeviceIds.DEFAULT_DEVICE_ID,
+                        "35.0",
+                        "90.0",
+                        "40.0",
+                        "2026-03-29T10:00:00Z"
+                )
+        );
+
+        when(sensorLatestRepository.upsert(
+                eq(DeviceIds.DEFAULT_DEVICE_ID),
+                eq(35.0f),
+                eq(90.0f),
+                eq(40.0f),
+                eq(Instant.parse("2026-03-29T10:00:00Z")),
+                any(Instant.class)
+        )).thenReturn(1);
+
+        ThresholdResult exceeded = new ThresholdResult(true,
+                List.of("Temperature: 35.0 (최대 30.0 초과)", "Humidity: 90.0 (최대 80.0 초과)"));
+        when(thresholdService.evaluateThreshold(any())).thenReturn(exceeded);
+        when(thresholdService.shouldSendNotification(eq(DeviceIds.DEFAULT_DEVICE_ID), eq(true)))
+                .thenReturn(true);
+
+        boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
+
+        assertTrue(result);
+        verify(deviceService).recordSensorDataReceived(DeviceIds.DEFAULT_DEVICE_ID);
+        verify(sensorDataRepository).saveAll(anyList());
+        verify(thresholdService).evaluateThreshold(any());
+        verify(thresholdService).shouldSendNotification(eq(DeviceIds.DEFAULT_DEVICE_ID), eq(true));
+        verify(slackService).sendThresholdAlert(any(), eq(exceeded));
+    }
+
+    @Test
+    void saveSensorDataAndLatestUpdate_shouldNotSendDuplicateAlert() {
+
+        List<SensorDataRequest> requests = List.of(
+                new SensorDataRequest(
+                        DeviceIds.DEFAULT_DEVICE_ID,
+                        "35.0",
+                        "90.0",
+                        "40.0",
+                        "2026-03-29T10:00:00Z"
+                )
+        );
+
+        when(sensorLatestRepository.upsert(
+                eq(DeviceIds.DEFAULT_DEVICE_ID),
+                eq(35.0f),
+                eq(90.0f),
+                eq(40.0f),
+                eq(Instant.parse("2026-03-29T10:00:00Z")),
+                any(Instant.class)
+        )).thenReturn(1);
+
+        ThresholdResult exceeded = new ThresholdResult(true,
+                List.of("Temperature: 35.0 (최대 30.0 초과)"));
+        when(thresholdService.evaluateThreshold(any())).thenReturn(exceeded);
+        when(thresholdService.shouldSendNotification(eq(DeviceIds.DEFAULT_DEVICE_ID), eq(true)))
+                .thenReturn(false);
+
+        boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
+
+        assertTrue(result);
+        verify(thresholdService).evaluateThreshold(any());
+        verify(thresholdService).shouldSendNotification(eq(DeviceIds.DEFAULT_DEVICE_ID), eq(true));
+        verify(slackService, never()).sendThresholdAlert(any(), any());
     }
 
     @Test
@@ -87,5 +176,32 @@ public class SensorServiceImplTest {
                 .findByDeviceId(any(UUID.class));
 
         assertEquals(expected, result);
+    }
+
+    @Test
+    void sendSlackAlertIfThresholdExceeded_shouldEvaluateAndNotify() {
+
+        List<SensorDataRequest> requests = List.of(
+                new SensorDataRequest(
+                        DeviceIds.DEFAULT_DEVICE_ID,
+                        "35.0",
+                        "90.0",
+                        "40.0",
+                        "2026-03-29T10:00:00Z"
+                )
+        );
+
+        ThresholdResult exceeded = new ThresholdResult(true,
+                List.of("Temperature: 35.0 (최대 30.0 초과)"));
+        when(thresholdService.evaluateThreshold(any())).thenReturn(exceeded);
+        when(thresholdService.shouldSendNotification(eq(DeviceIds.DEFAULT_DEVICE_ID), eq(true)))
+                .thenReturn(true);
+
+        boolean result = sensorService.sendSlackAlertIfThresholdExceeded(
+                DeviceIds.DEFAULT_DEVICE_ID, requests);
+
+        assertTrue(result);
+        verify(thresholdService).evaluateThreshold(any());
+        verify(slackService).sendThresholdAlert(any(), eq(exceeded));
     }
 }

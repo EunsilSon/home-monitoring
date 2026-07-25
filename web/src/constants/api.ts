@@ -4,4 +4,5 @@ export const DEFAULT_DEVICE_ID = import.meta.env.VITE_DEVICE_ID || '220aa852-ee7
 export const API_ENDPOINTS = {
   SENSOR_LATEST: (deviceId: string) => `/api/sensor/${deviceId}/latest`,
   DEVICE_STATUS: (deviceId: string) => `/api/device/${deviceId}/status`,
+  THRESHOLD:     (deviceId: string) => `/api/threshold/${deviceId}`,
 } as const
