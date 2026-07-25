@@ -80,7 +80,7 @@ function validate(): boolean {
   ]
 
   for (const field of fields) {
-    if (field.value.trim() === '') {
+    if (String(field.value).trim() === '') {
       errors.push(`${field.label} 값을 입력해주세요.`)
       continue
     }
@@ -138,6 +138,10 @@ async function handleSave() {
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'response' in err) {
       const axiosErr = err as { response?: { status?: number } }
+      if (axiosErr.response?.status === 404) {
+        alert('저장할 수 없습니다. 장치를 찾을 수 없습니다.')
+        return
+      }
       if (axiosErr.response?.status === 403) {
         alert('권한이 없어 알림 맞춤 설정을 저장할 수 없습니다.')
         return
