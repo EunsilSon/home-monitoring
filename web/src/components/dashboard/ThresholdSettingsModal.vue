@@ -188,9 +188,10 @@ function handleOverlayClick(e: MouseEvent) {
           <div v-else class="form-content">
             <!-- 온도 -->
             <div class="field-group">
-              <div class="field-row-stack">
+              <p class="field-group-label">온도</p>
+              <div class="field-row">
                 <div class="field">
-                  <label class="field-label">최소 온도</label>
+                  <label class="field-label">최소</label>
                   <input
                       v-model="temperatureMin"
                       type="number"
@@ -200,7 +201,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">최대 온도</label>
+                  <label class="field-label">최대</label>
                   <input
                       v-model="temperatureMax"
                       type="number"
@@ -214,9 +215,10 @@ function handleOverlayClick(e: MouseEvent) {
 
             <!-- 습도 -->
             <div class="field-group">
-              <div class="field-row-stack">
+              <p class="field-group-label">습도</p>
+              <div class="field-row">
                 <div class="field">
-                  <label class="field-label">최소 습도</label>
+                  <label class="field-label">최소</label>
                   <input
                       v-model="humidityMin"
                       type="number"
@@ -226,7 +228,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">최대 습도</label>
+                  <label class="field-label">최대</label>
                   <input
                       v-model="humidityMax"
                       type="number"
@@ -240,9 +242,10 @@ function handleOverlayClick(e: MouseEvent) {
 
             <!-- 체감 온도 -->
             <div class="field-group">
-              <div class="field-row-stack">
+              <p class="field-group-label">체감 온도</p>
+              <div class="field-row">
                 <div class="field">
-                  <label class="field-label">최소 체감 온도</label>
+                  <label class="field-label">최소</label>
                   <input
                       v-model="heatIndexMin"
                       type="number"
@@ -252,7 +255,7 @@ function handleOverlayClick(e: MouseEvent) {
                   />
                 </div>
                 <div class="field">
-                  <label class="field-label">최대 체감 온도</label>
+                  <label class="field-label">최대</label>
                   <input
                       v-model="heatIndexMax"
                       type="number"
@@ -415,12 +418,6 @@ function handleOverlayClick(e: MouseEvent) {
 .field-row {
   display: flex;
   gap: 12px;
-}
-
-.field-row-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .field {
