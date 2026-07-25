@@ -3,3 +3,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/home_monitoring
     username: postgres
     password: 1234
+slack:
+  webhook-url: ${SLACK_WEBHOOK_URL:}
