@@ -1,6 +1,7 @@
 name: Deploy Server
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -39,44 +40,44 @@ jobs:
 
       - name: Prepare SSH
         env:
-          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
-          LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          CLOUD_HOST: ${{ secrets.CLOUD_HOST }}
+          CLOUD_SSH_KEY: ${{ secrets.CLOUD_SSH_KEY }}
         run: |
           set -euo pipefail
 
-          test -n "$LIGHTSAIL_HOST" || (echo "LIGHTSAIL_HOST secret is empty" && exit 1)
-          test -n "$LIGHTSAIL_SSH_KEY" || (echo "LIGHTSAIL_SSH_KEY secret is empty" && exit 1)
+          test -n "$CLOUD_HOST" || (echo "CLOUD_HOST secret is empty" && exit 1)
+          test -n "$CLOUD_SSH_KEY" || (echo "CLOUD_SSH_KEY secret is empty" && exit 1)
 
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$LIGHTSAIL_SSH_KEY" > ~/.ssh/lightsail.pem
-          chmod 600 ~/.ssh/lightsail.pem
+          printf '%s\n' "$CLOUD_SSH_KEY" > ~/.ssh/cloud.pem
+          chmod 600 ~/.ssh/cloud.pem
 
-          ssh-keygen -y -f ~/.ssh/lightsail.pem > /dev/null
-          ssh-keyscan -T 30 -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/cloud.pem > /dev/null
+          ssh-keyscan -T 30 -H "$CLOUD_HOST" >> ~/.ssh/known_hosts
 
       - name: Prepare remote server directory
         run: |
-          ssh -i ~/.ssh/lightsail.pem \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+          ssh -i ~/.ssh/cloud.pem \
+            "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}" \
             "mkdir -p '${{ secrets.DEPLOY_DIR }}/java-server' && \
              rm -f '${{ secrets.DEPLOY_DIR }}/java-server/'*.jar"
 
       - name: Upload backend files
         run: |
-          scp -i ~/.ssh/lightsail.pem deploy/docker-compose.yml \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/docker-compose.yml"
+          scp -i ~/.ssh/cloud.pem deploy/docker-compose.yml \
+            "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}:${{ secrets.DEPLOY_DIR }}/docker-compose.yml"
 
-          scp -i ~/.ssh/lightsail.pem deploy/java-server/Dockerfile \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/Dockerfile"
+          scp -i ~/.ssh/cloud.pem deploy/java-server/Dockerfile \
+            "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/Dockerfile"
 
           JAR_FILE="$(find server/home-monitoring-server/build/libs -name '*.jar' ! -name '*plain*' | head -n 1)"
-          scp -i ~/.ssh/lightsail.pem "$JAR_FILE" \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/app.jar"
+          scp -i ~/.ssh/cloud.pem "$JAR_FILE" \
+            "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}:${{ secrets.DEPLOY_DIR }}/java-server/app.jar"
 
       - name: Deploy backend with Docker Compose
         run: |
-          ssh -i ~/.ssh/lightsail.pem \
-            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" <<'EOF'
+          ssh -i ~/.ssh/cloud.pem \
+            "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}" <<'EOF'
           set -euo pipefail
 
           docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring
