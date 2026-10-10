@@ -80,15 +80,15 @@ jobs:
             "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}" <<'EOF'
           set -euo pipefail
 
-          docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring
+          sudo docker network inspect home-monitoring >/dev/null 2>&1 || sudo docker network create home-monitoring
 
           cd '${{ secrets.DEPLOY_DIR }}'
           test -f .env || (echo "Missing ${PWD}/.env" && exit 1)
 
-          docker compose up -d postgres
+          sudo docker compose up -d postgres
 
           for i in $(seq 1 30); do
-            STATUS="$(docker inspect -f '{{.State.Health.Status}}' home_postgres 2>/dev/null || true)"
+            STATUS="$(sudo docker inspect -f '{{.State.Health.Status}}' home_postgres 2>/dev/null || true)"
             if [ "$STATUS" = "healthy" ]; then
               break
             fi
@@ -96,9 +96,9 @@ jobs:
             sleep 2
           done
 
-          STATUS="$(docker inspect -f '{{.State.Health.Status}}' home_postgres)"
-          test "$STATUS" = "healthy" || (echo "postgres is not healthy: $STATUS" && docker logs home_postgres && exit 1)
+          STATUS="$(sudo docker inspect -f '{{.State.Health.Status}}' home_postgres)"
+          test "$STATUS" = "healthy" || (echo "postgres is not healthy: $STATUS" && sudo docker logs home_postgres && exit 1)
 
-          docker compose up -d --build java-server
-          docker image prune -f
+          sudo docker compose up -d --build java-server
+          sudo docker image prune -f
           EOF

@@ -77,7 +77,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/cloud.pem \
             "${{ secrets.CLOUD_USER }}@${{ secrets.CLOUD_HOST }}" \
-            "docker network inspect home-monitoring >/dev/null 2>&1 || docker network create home-monitoring && \
+            "sudo docker network inspect home-monitoring >/dev/null 2>&1 || sudo docker network create home-monitoring && \
              cd '${{ secrets.DEPLOY_DIR }}' && \
-             docker compose up -d --build --no-deps vue-web && \
-             docker image prune -f"
+             sudo docker compose up -d --build --no-deps vue-web && \
+             sudo docker image prune -f"
