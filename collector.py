@@ -3,6 +3,7 @@ import json
 import requests
 import time
 import os
+import logging
 from datetime import datetime, timezone
 
 SERIAL_PORT = os.getenv("SERIAL_PORT", "COM3")
@@ -15,6 +16,12 @@ SENSOR_SEND_INTERVAL_SECONDS = int(os.getenv("SENSOR_SEND_INTERVAL_SECONDS", "60
 
 API_KEY = os.getenv("API_KEY", "")
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+logger = logging.getLogger("collector")
+
 session = requests.Session()
 session.headers.update({"X-API-Key": API_KEY})
 
@@ -23,7 +30,7 @@ ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 buffer = []
 last_sensor_sent_at = time.monotonic()
 
-print("Collector started...")
+logger.info("Collector started")
 
 
 def send_sensor_data():
@@ -36,11 +43,18 @@ def send_sensor_data():
     if now - last_sensor_sent_at < SENSOR_SEND_INTERVAL_SECONDS:
         return
 
+    batch = list(buffer)
+    recorded_at = [item["recordedAt"] for item in batch]
+    batch_range = f"recordedAt={min(recorded_at)}..{max(recorded_at)}"
+
     try:
-        response = session.post(SENSOR_API_URL, json=buffer, timeout=5)
-        print("response status: ", response.status_code)
+        response = session.post(SENSOR_API_URL, json=batch, timeout=5)
+        if not response.ok:
+            logger.error("Sensor batch rejected and discarded: count=%d %s status=%d",
+                         len(batch), batch_range, response.status_code)
     except Exception as e:
-        print("API send failed: ", e)
+        logger.error("Sensor batch send failed and discarded: count=%d %s error=%s",
+                     len(batch), batch_range, e)
     finally:
         buffer.clear()
         last_sensor_sent_at = now
@@ -65,9 +79,9 @@ while True:
         send_sensor_data()
 
     except json.JSONDecodeError:
-        print("JSON parse error: ", line)
+        logger.warning("JSON parse error: %s", line)
 
     except Exception as e:
-        print("Error: ", e)
+        logger.exception("Collector error: %s", e)
     
     time.sleep(0.1)
