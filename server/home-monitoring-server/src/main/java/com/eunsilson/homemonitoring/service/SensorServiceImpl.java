@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BinaryOperator;
@@ -46,6 +47,14 @@ public class SensorServiceImpl implements SensorService {
 
         List<SensorDataEntity> entities = requests.stream()
                 .map(SensorDataRequest::toSensorData)
+                .collect(Collectors.toMap(
+                        sensorData -> new SensorMeasurementKey(
+                                sensorData.getDeviceId(), sensorData.getRecordedAt()),
+                        Function.identity(),
+                        (first, duplicate) -> first,
+                        LinkedHashMap::new
+                ))
+                .values().stream()
                 .toList();
 
         entities.stream()
@@ -121,4 +130,6 @@ public class SensorServiceImpl implements SensorService {
         );
         return result > 0;
     }
+
+    private record SensorMeasurementKey(UUID deviceId, Instant recordedAt) {}
 }

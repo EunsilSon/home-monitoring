@@ -3,6 +3,7 @@ package com.eunsilson.homemonitoring;
 import com.eunsilson.homemonitoring.domain.DeviceIds;
 import com.eunsilson.homemonitoring.domain.dto.SensorDataRequest;
 import com.eunsilson.homemonitoring.domain.dto.ThresholdResult;
+import com.eunsilson.homemonitoring.domain.entity.SensorDataEntity;
 import com.eunsilson.homemonitoring.domain.entity.SensorLatestEntity;
 import com.eunsilson.homemonitoring.repository.SensorDataRepository;
 import com.eunsilson.homemonitoring.repository.SensorLatestRepository;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -45,6 +47,32 @@ public class SensorServiceImplTest {
 
     @InjectMocks
     private SensorServiceImpl sensorService;
+
+    @Test
+    void saveSensorDataAndLatestUpdate_shouldDeduplicateSameDeviceAndRecordedAt() {
+        Instant recordedAt = Instant.parse("2026-03-29T10:00:00Z");
+        List<SensorDataRequest> requests = List.of(
+                new SensorDataRequest(DeviceIds.DEFAULT_DEVICE_ID, "20.0", "30.0", "21.0", recordedAt.toString()),
+                new SensorDataRequest(DeviceIds.DEFAULT_DEVICE_ID, "20.0", "30.0", "21.0", recordedAt.toString()),
+                new SensorDataRequest(DeviceIds.DEFAULT_DEVICE_ID, "22.0", "31.0", "23.0", "2026-03-29T10:01:00Z")
+        );
+
+        when(sensorLatestRepository.upsert(
+                eq(DeviceIds.DEFAULT_DEVICE_ID), eq(22.0f), eq(31.0f), eq(23.0f),
+                eq(Instant.parse("2026-03-29T10:01:00Z")), any(Instant.class)
+        )).thenReturn(1);
+        when(thresholdService.evaluateThreshold(any()))
+                .thenReturn(new ThresholdResult(false, List.of()));
+        when(thresholdService.shouldSendNotification(any(UUID.class), eq(false))).thenReturn(false);
+
+        boolean result = sensorService.saveSensorDataAndLatestUpdate(requests);
+
+        ArgumentCaptor<List<SensorDataEntity>> savedEntities = ArgumentCaptor.forClass(List.class);
+        verify(sensorDataRepository).saveAll(savedEntities.capture());
+        assertEquals(2, savedEntities.getValue().size());
+        assertEquals(recordedAt, savedEntities.getValue().get(0).getRecordedAt());
+        assertTrue(result);
+    }
 
     @Test
     void saveSensorDataAndLatestUpdate_shouldSaveAllAndUpdateLatest() {
