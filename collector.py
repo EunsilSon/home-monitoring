@@ -17,6 +17,7 @@ SENSOR_SEND_INTERVAL_SECONDS = int(os.getenv("SENSOR_SEND_INTERVAL_SECONDS", "60
 
 API_KEY = os.getenv("API_KEY", "")
 
+# 로깅 설정
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s"
@@ -33,7 +34,7 @@ last_sensor_sent_at = time.monotonic()
 
 logger.info("Collector started")
 
-
+# 센서 데이터 일괄 전송
 def send_sensor_data():
     global last_sensor_sent_at
 
@@ -61,6 +62,7 @@ def send_sensor_data():
         last_sensor_sent_at = now
 
 
+# 아두이노 시리얼 데이터 JSON 변환
 while True:
     try:
         line = ser.readline().decode(errors="ignore").strip()
@@ -76,6 +78,7 @@ while True:
             "heatIndex": data.get("heatIndex"),
             "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
+
         buffer.append(payload)
         send_sensor_data()
 
