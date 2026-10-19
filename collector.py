@@ -6,9 +6,10 @@ import os
 import logging
 from datetime import datetime, timezone
 
-SERIAL_PORT = os.getenv("SERIAL_PORT", "COM3")
+# 실행 설정
+SERIAL_PORT = os.getenv("SERIAL_PORT", "/dev/cu.usbmodem141011")
 BAUD_RATE = int(os.getenv("BAUD_RATE", "9600"))
-API_BASE_URL = os.getenv("API_BASE_URL", "http://192.168.0.13:8000")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:9000")
 DEVICE_ID = os.getenv("DEVICE_ID", "220aa852-ee70-4105-8cf5-98c23cb5e631")
 
 SENSOR_API_URL = f"{API_BASE_URL}/api/sensor/bulk"
