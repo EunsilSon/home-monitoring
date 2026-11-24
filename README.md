@@ -31,12 +31,12 @@ PostgreSQL
 Vue 웹 대시보드
 ```
 
-1. `tem_hum_sensor.ino`가 DHT22 센서에서 온도, 습도, 체감 온도를 읽습니다.
-2. Arduino가 2초마다 시리얼 포트로 JSON 데이터를 출력합니다.
-3. `collector.py`가 시리얼 데이터를 읽고 30개씩 버퍼링합니다.
-4. 버퍼가 차면 Spring Boot 서버의 `/api/sensor/bulk`로 일괄 전송합니다.
+1. `tem_hum_sensor.ino`가 DHT22 센서에서 온습도를 읽습니다.
+2. Arduino가 10초마다 온습도 데이터를 시리얼 모니터에 JSON 형식으로 출력합니다.
+3. `collector.py`가 시리얼 데이터를 읽고 버퍼에 담습니다.
+4. 버퍼는 1분마다 Spring Boot 서버의 `/api/sensor/bulk`로 일괄 전송합니다.
 5. 서버는 원본 센서 이력을 `sensor_data`에 저장하고 최신값을 `sensor_latest`에 upsert합니다.
-6. Vue 웹 앱은 `/api/sensor/latest`를 30초 간격으로 조회해 대시보드를 갱신합니다.
+6. Vue 웹 앱은 `/api/sensor/latest`를 1분 간격으로 조회해 대시보드를 갱신합니다.
 
 <br>
 
